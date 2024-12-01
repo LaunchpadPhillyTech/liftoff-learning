@@ -1,0 +1,22 @@
+{
+  "name": "revealjs-github-markdown",
+  "version": "1.0.0",
+  "description": "A dynamic Reveal.js presentation with content hosted on GitHub using Octokit.js and vanilla JavaScript.",
+  "main": "index.html",
+  "scripts": {
+    "start": "reveal-md --static ./src --watch",
+    "build": "reveal-md --static ./build",
+    "serve": "http-server ./ -p 8080"
+  },
+  "dependencies": {
+    "@octokit/core": "^5.0.0",
+    "marked": "^5.0.0",
+    "http-server": "^14.1.0"
+  },
+  "devDependencies": {
+    "reveal-md": "^6.0.0"
+  },
+  "keywords": ["reveal.js", "markdown", "github", "octokit"],
+  "author": "Rob T.",
+  "license": "MIT"
+}
