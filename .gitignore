@@ -10,4 +10,3 @@ scripts/
 .readme.md
 .env
 .global-prompt.md
-package-lock.json
