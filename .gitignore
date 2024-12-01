@@ -4,6 +4,7 @@ src/
 nodejs-course/
 plugin/
 scripts/
+.notes/
 
 # files 
 .readme.md

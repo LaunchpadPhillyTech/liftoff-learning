@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: built-presentations
-          path: dist/
+          path: docs/
 
   deploy:
     needs: build
@@ -48,12 +48,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: built-presentations
-          path: dist/
+          path: docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./docs/dist
           # Optional: Add custom domain
           # cname: presentations.yourdomain.com
