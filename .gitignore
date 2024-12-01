@@ -1,0 +1,9 @@
+# Directoreis 
+node_modules/
+src/
+.notes/
+
+# files 
+.readme.md
+.env
+.global-prompt.md
