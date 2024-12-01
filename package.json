@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "start": "reveal-md --static ./src --watch",
-    "build": "reveal-md --static ./build",
+    "build": "reveal-md --static ./docs",
     "serve": "http-server ./ -p 8080"
   },
   "dependencies": {
