@@ -32,7 +32,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: built-presentations
           path: docs/
@@ -45,15 +45,16 @@ jobs:
     
     steps:
       - name: Download built presentations
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: built-presentations
           path: docs/
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: actions/deploy-pages@v4.0.5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/dist
+          token: ${{ secrets.GITHUB_TOKEN }}
+          #publish_dir: ./docs/dist
           # Optional: Add custom domain
           # cname: presentations.yourdomain.com
+          
