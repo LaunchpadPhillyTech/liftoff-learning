@@ -4,7 +4,7 @@
   "description": "A dynamic Reveal.js presentation with content hosted on GitHub using Octokit.js and vanilla JavaScript.",
   "main": "index.html",
   "scripts": {
-    "start": "reveal-md --static ./src --watch",
+    "start": "reveal-md --static ./ --watch",
     "build": "reveal-md --static ./build",
     "serve": "http-server ./ -p 8080"
   },
