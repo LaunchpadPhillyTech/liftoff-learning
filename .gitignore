@@ -1,10 +1,13 @@
+# Directoreis 
 node_modules/
-.env
-.readme.md
-.global-prompt.md
 src/
 nodejs-course/
 dist/
 plugin/
 scripts/
+
+# files 
+.readme.md
+.env
+.global-prompt.md
 package-lock.json
