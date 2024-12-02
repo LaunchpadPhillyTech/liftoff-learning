@@ -7,7 +7,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "reveal-md --static ./ --watch"
+    "start": "reveal-md --static ./src --watch",
+    "build": "reveal-md --static ./"
   },
   "keywords": [],
   "author": "",
