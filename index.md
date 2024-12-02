@@ -161,7 +161,6 @@
   - Overview of Node.js and npm
   - Setting up development environment
   - Creating and deploying a simple Node.js application
-- **Questions:** Open floor for any student queries
 
 ---
 
@@ -967,7 +966,6 @@
   - Managing dependencies with `package.json`
   - Installing, updating, and organizing packages
   - Automating tasks with npm scripts
-- **Questions:** Open floor for any student queries
 
 ---
 
