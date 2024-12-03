@@ -3,9 +3,7 @@ node_modules/
 src/
 .notes/
 .lessons/
-css/ 
-dist/
-plugin/
+
 
 # files 
 .readme.md
