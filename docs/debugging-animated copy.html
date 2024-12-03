@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            Certainly! Enhancing your Reveal.js presentation with animations on code blocks can significantly improve the clarity and effectiveness of your explanations. By animating specific lines or sections of code, you can guide your audience through complex coding concepts step-by-step.
+
+Below, I've regenerated the **Solution Code** slides for the **NodeGuard: Mastering Debugging Techniques in Node.js Applications** Project-Based Learning (PBL) plan, incorporating **Reveal.js** animations using fragments. This will allow you to elaborate on particular coding concepts by revealing parts of the code sequentially.
+
+---
+
+## **Setting Up Reveal.js**
+
+Before integrating animations, ensure you have **Reveal.js** set up. Follow the [official Reveal.js installation guide](https://revealjs.com/installation/) to get started.
+
+---
+
+## **Reveal.js Markdown Structure with Animations**
+
+Here's how to structure your Reveal.js presentation with animated code blocks:
+
+1. **Use Fragments:** Fragments allow you to reveal elements one at a time. In code blocks, you can wrap specific lines or parts of code within `<span class="fragment">` tags to animate them.
+
+2. **Inline HTML within Markdown:** Since Markdown's triple backticks don't support per-line classes, using inline HTML within your slides provides the flexibility needed for animations.
+
+3. **Syntax Highlighting:** Ensure you have a syntax highlighting library like [Highlight.js](https://highlightjs.org/) integrated with Reveal.js for better code readability.
+
+### **Example Slide with Animated Code Block**
+
+Below is an example of how to add animations to a code block within a Reveal.js slide:
+
+---
+
+<!-- .slide: data-transition="fade" -->
+# NodeGuard: Mastering Debugging Techniques in Node.js
+
+---
+
+## **Phase 1: Introduction to Node.js Debugging**
+
+### Activity 1: Exploring Common Node.js Bugs
+
+#### Original (Buggy) Code
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Original (Buggy) Code
+
+```html
+<pre>
+<code class="javascript">
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware to parse JSON
+app.use(express.json());
+
+// Route to add two numbers
+app.post('/add', (req, res) => {
+    const { num1, num2 } = req.body;
+    const result = num1 + num2;
+    res.json({ result: result });
+});
+
+// Route to fetch user data (asynchronous)
+app.get('/user/:id', async (req, res) => {
+    const userId = req.params.id;
+    // Simulate fetching user from database
+    const user = await getUserById(userId);
+    res.json(user);
+});
+
+// Simulated database function with a bug
+function getUserById(id) {
+    return new Promise((resolve, reject) => {
+        // Intentional bug: missing 'data' variable
+        if (id === '1') {
+            resolve({ id: '1', name: 'John Doe' });
+        } else {
+            reject('User not found');
+        }
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+</code>
+</pre>
+```
+
+---
+
+#### Corrected (Solution) Code with Animations
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Corrected (Solution) Code
+
+```html
+<pre>
+<code class="javascript">
+// <span class="fragment">const express = require('express');</span>
+// <span class="fragment">const app = express();</span>
+// <span class="fragment">const port = 3000;</span>
+
+// <span class="fragment">app.use(express.json());</span>
+
+// <span class="fragment">// Route to add two numbers</span>
+// <span class="fragment">app.post('/add', (req, res) => {</span>
+// <span class="fragment">    let { num1, num2 } = req.body;</span>
+// <span class="fragment">    num1 = Number(num1);</span> <!-- Animation Step 1 -->
+// <span class="fragment">    num2 = Number(num2);</span> <!-- Animation Step 2 -->
+// <span class="fragment">    if (isNaN(num1) || isNaN(num2)) {</span>
+// <span class="fragment">        return res.status(400).json({ error: 'Invalid numbers provided.' });</span>
+// <span class="fragment">    }</span>
+// <span class="fragment">    const result = num1 + num2;</span>
+// <span class="fragment">    res.json({ result: result });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Route to fetch user data (asynchronous)</span>
+// <span class="fragment">app.get('/user/:id', async (req, res) => {</span>
+// <span class="fragment">    const userId = req.params.id;</span>
+// <span class="fragment">    try {</span>
+// <span class="fragment">        const user = await getUserById(userId);</span>
+// <span class="fragment">        res.json(user);</span>
+// <span class="fragment">    } catch (error) {</span>
+// <span class="fragment">        res.status(404).json({ error: error });</span>
+// <span class="fragment">    }</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Simulated database function</span>
+// <span class="fragment">function getUserById(id) {</span>
+// <span class="fragment">    return new Promise((resolve, reject) => {</span>
+// <span class="fragment">        if (id === '1') {</span>
+// <span class="fragment">            resolve({ id: '1', name: 'John Doe' });</span>
+// <span class="fragment">        } else {</span>
+// <span class="fragment">            reject('User not found');</span>
+// <span class="fragment">        }</span>
+// <span class="fragment">    });</span>
+// <span class="fragment">}</span>
+
+// <span class="fragment">// Start the server</span>
+// <span class="fragment">app.listen(port, () => {</span>
+// <span class="fragment">    console.log(`Server running on port ${port}`);</span>
+// <span class="fragment">});</span>
+</code>
+</pre>
+```
+
+---
+
+#### Explanations
+
+1. **Fixing the `/add` Route Logical Error:**
+   - **Issue:** If `num1` and `num2` are sent as strings (e.g., `"5"`), the addition operation `num1 + num2` results in string concatenation (`"55"` instead of `10`).
+   - **Solution:** Convert `num1` and `num2` to numbers using `Number()` before performing the addition. Additionally, check if the conversion results in `NaN` to handle invalid inputs gracefully.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal `num1 = Number(num1);`
+   - **Step 2:** Reveal `num2 = Number(num2);`
+
+2. **Handling Asynchronous Errors in `/user/:id` Route:**
+   - **Issue:** The `getUserById` function may reject the promise (e.g., if the user is not found), but there's no error handling in place, leading to unhandled promise rejections.
+   - **Solution:** Wrap the `await getUserById(userId)` call inside a `try-catch` block to handle potential errors and respond with appropriate HTTP status codes and error messages.
+
+---
+
+## **Additional Example Slides with Animated Code Blocks**
+
+To further illustrate how to add animations to code blocks, here are additional examples from different activities.
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## **Phase 2: Advanced Debugging Techniques**
+
+### Activity 4: Asynchronous Code Debugging
+
+#### Original (Buggy) Code
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Original (Buggy) Code
+
+```html
+<pre>
+<code class="javascript">
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Simulated asynchronous function with a bug
+function fetchData(callback) {
+    setTimeout(() => {
+        const data = { id: 1, name: 'Sample Data' };
+        callback(data);
+    }, 1000);
+}
+
+// Route to get data using callbacks
+app.get('/data-callback', (req, res) => {
+    fetchData((data) => {
+        res.json(data);
+    });
+});
+
+// Route to get data using Promises
+app.get('/data-promise', (req, res) => {
+    fetchDataPromise().then(data => {
+        res.json(data);
+    });
+});
+
+// Simulated fetchDataPromise with a bug (never resolves)
+function fetchDataPromise() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 2, name: 'Promise Data' };
+            // Missing resolve or reject
+        }, 1000);
+    });
+}
+
+// Route to get data using async/await
+app.get('/data-async', async (req, res) => {
+    const data = await fetchDataAsync();
+    res.json(data);
+});
+
+// Simulated fetchDataAsync with a bug (throws instead of rejecting)
+function fetchDataAsync() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 3, name: 'Async Data' };
+            reject(data); // Intentional bug: should resolve
+        }, 1000);
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Async App running on port ${port}`);
+});
+</code>
+</pre>
+```
+
+---
+
+#### Corrected (Solution) Code with Animations
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Corrected (Solution) Code
+
+```html
+<pre>
+<code class="javascript">
+// <span class="fragment">const express = require('express');</span>
+// <span class="fragment">const app = express();</span>
+// <span class="fragment">const port = 3000;</span>
+
+// <span class="fragment">app.use(express.json());</span>
+
+// <span class="fragment">// Simulated asynchronous function</span>
+// <span class="fragment">function fetchData(callback) {</span>
+// <span class="fragment">    setTimeout(() => {</span>
+// <span class="fragment">        const data = { id: 1, name: 'Sample Data' };</span>
+// <span class="fragment">        callback(null, data); // Pass error as first argument</span>
+// <span class="fragment">    }, 1000);</span>
+// <span class="fragment">}</span>
+
+// <span class="fragment">// Route to get data using callbacks</span>
+// <span class="fragment">app.get('/data-callback', (req, res) => {</span>
+// <span class="fragment">    fetchData((err, data) => {</span>
+// <span class="fragment">        if (err) {</span>
+// <span class="fragment">            return res.status(500).json({ error: 'Failed to fetch data.' });</span>
+// <span class="fragment">        }</span>
+// <span class="fragment">        res.json(data);</span>
+// <span class="fragment">    });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Route to get data using Promises</span>
+// <span class="fragment">app.get('/data-promise', (req, res) => {</span>
+// <span class="fragment">    fetchDataPromise()</span>
+// <span class="fragment">        .then(data => {</span>
+// <span class="fragment">            res.json(data);</span>
+// <span class="fragment">        })</span>
+// <span class="fragment">        .catch(err => {</span>
+// <span class="fragment">            res.status(500).json({ error: 'Failed to fetch data.' });</span>
+// <span class="fragment">        });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Corrected fetchDataPromise to resolve the Promise</span>
+// <span class="fragment">function fetchDataPromise() {</span>
+// <span class="fragment">    return new Promise((resolve, reject) => {</span>
+// <span class="fragment">        setTimeout(() => {</span>
+// <span class="fragment">            const data = { id: 2, name: 'Promise Data' };</span>
+// <span class="fragment">            resolve(data); // Correctly resolve the Promise</span>
+// <span class="fragment">        }, 1000);</span>
+// <span class="fragment">    });</span>
+// <span class="fragment">}</span>
+
+// <span class="fragment">// Route to get data using async/await</span>
+// <span class="fragment">app.get('/data-async', async (req, res) => {</span>
+// <span class="fragment">    try {</span>
+// <span class="fragment">        const data = await fetchDataAsync();</span>
+// <span class="fragment">        res.json(data);</span>
+// <span class="fragment">    } catch (error) {</span>
+// <span class="fragment">        res.status(500).json({ error: 'Failed to fetch data.' });</span>
+// <span class="fragment">    }</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Corrected fetchDataAsync to resolve instead of rejecting</span>
+// <span class="fragment">function fetchDataAsync() {</span>
+// <span class="fragment">    return new Promise((resolve, reject) => {</span>
+// <span class="fragment">        setTimeout(() => {</span>
+// <span class="fragment">            const data = { id: 3, name: 'Async Data' };</span>
+// <span class="fragment">            resolve(data); // Correctly resolve the Promise</span>
+// <span class="fragment">        }, 1000);</span>
+// <span class="fragment">    });</span>
+// <span class="fragment">}</span>
+
+// <span class="fragment">// Start the server</span>
+// <span class="fragment">app.listen(port, () => {</span>
+// <span class="fragment">    console.log(`Async App running on port ${port}`);</span>
+// <span class="fragment">});</span>
+</code>
+</pre>
+```
+
+---
+
+#### Explanations
+
+1. **Fixing `fetchDataPromise`:**
+   - **Issue:** The function `fetchDataPromise` does not call `resolve` or `reject`, causing the Promise to remain pending.
+   - **Solution:** Add `resolve(data);` within the `setTimeout` to ensure the Promise is fulfilled after data is fetched.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal `resolve(data);` line.
+   - **Step 2:** Reveal error handling in the `/data-promise` route.
+
+2. **Fixing `fetchDataAsync`:**
+   - **Issue:** The function `fetchDataAsync` calls `reject(data);` instead of `resolve(data);`, incorrectly signaling an error even when data is fetched successfully.
+   - **Solution:** Replace `reject(data);` with `resolve(data);` to correctly resolve the Promise when data is available.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal `resolve(data);` line.
+   - **Step 2:** Reveal error handling in the `/data-async` route.
+
+3. **Enhancing Callback Handling in `/data-callback`:**
+   - **Issue:** The original `fetchData` function does not handle errors.
+   - **Solution:** Modify the callback to accept an error as the first argument (`callback(err, data)`) and handle it appropriately in the route.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal error parameter in callback.
+   - **Step 2:** Reveal error handling inside the callback.
+
+---
+
+## **Additional Tips for Animating Code Blocks in Reveal.js**
+
+1. **Use `<span class="fragment">` for Inline Fragments:**
+   - Wrap specific code lines or parts within `<span class="fragment">` tags to animate them individually.
+
+2. **Control Fragment Order with `data-fragment-index`:**
+   - Assign `data-fragment-index` attributes to manage the sequence in which fragments appear.
+   - Example:
+     ```html
+     <span class="fragment" data-fragment-index="1">const express = require('express');</span>
+     <span class="fragment" data-fragment-index="2">const app = express();</span>
+     ```
+
+3. **Combine Fragments with Other Animations:**
+   - Use different transition effects for slides to complement fragment animations.
+   - Example: `data-transition="fade"`, `data-transition="slide"`, etc.
+
+4. **Nested Fragments for Complex Animations:**
+   - Create nested fragments for more granular control over animations within code blocks.
+
+5. **Highlighting with CSS:**
+   - Combine fragments with CSS classes to highlight specific parts of the code when they appear.
+   - Example:
+     ```css
+     .highlight {
+         background-color: yellow;
+     }
+     ```
+     ```html
+     <span class="fragment highlight">const express = require('express');</span>
+     ```
+
+---
+
+## **Complete Slide Example with Animated Code Block**
+
+Below is a complete example of a Reveal.js slide featuring an animated code block. This example is based on **Activity 7: Writing Maintainable and Debuggable Code**.
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## **Phase 3: Implementing Best Practices**
+
+### Activity 7: Writing Maintainable and Debuggable Code
+
+#### Original (Poorly Structured) Code
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Original (Poorly Structured) Code
+
+```html
+<pre>
+<code class="javascript">
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// In-memory data storage
+let users = [];
+
+// Add user
+app.post('/add-user', (req, res) => {
+    const { name } = req.body;
+    const id = users.length + 1;
+    users.push({ id, name });
+    res.send(`User ${name} added with ID ${id}`);
+});
+
+// Get user by ID
+app.get('/user/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const user = users.find(u => u.id === id);
+    if (user) {
+        res.json(user);
+    } else {
+        res.send('User not found');
+    }
+});
+
+// Update user
+app.put('/update-user/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name } = req.body;
+    const user = users.find(u => u.id === id);
+    if (user) {
+        user.name = name;
+        res.send(`User ID ${id} updated to ${name}`);
+    } else {
+        res.send('User not found');
+    }
+});
+
+// Delete user
+app.delete('/delete-user/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    users = users.filter(u => u.id !== id);
+    res.send(`User ID ${id} deleted`);
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Poor Code App running on port ${port}`);
+});
+</code>
+</pre>
+```
+
+---
+
+#### Corrected (Solution) Code with Animations
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Corrected (Solution) Code with Best Practices
+
+```html
+<pre>
+<code class="javascript">
+// <span class="fragment">const express = require('express');</span>
+// <span class="fragment">const app = express();</span>
+// <span class="fragment">const port = 3000;</span>
+
+// <span class="fragment">app.use(express.json());</span>
+
+// <span class="fragment">// Import routes</span>
+// <span class="fragment">const userRoutes = require('./routes/userRoutes');</span>
+
+// <span class="fragment">// Use routes</span>
+// <span class="fragment">app.use('/users', userRoutes);</span>
+
+// <span class="fragment">// Global Error Handler</span>
+// <span class="fragment">app.use((err, req, res, next) => {</span>
+// <span class="fragment">    logger.error(`Unhandled Error: ${err.message}`);</span>
+// <span class="fragment">    res.status(500).json({ error: 'Internal Server Error' });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Start server</span>
+// <span class="fragment">app.listen(port, () => {</span>
+// <span class="fragment">    logger.info(`Clean Code App running on port ${port}`);</span>
+// <span class="fragment">});</span>
+</code>
+</pre>
+```
+
+---
+
+#### Explanations
+
+1. **Modularization:**
+   - **Issue:** All routes and logic are in a single file, making it difficult to manage and scale.
+   - **Solution:** Separate routes into individual modules (e.g., `userRoutes.js`) and import them into the main `app.js` file. This improves code organization and maintainability.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal route imports.
+   - **Step 2:** Reveal middleware setup.
+   - **Step 3:** Reveal global error handler.
+   - **Step 4:** Reveal server start-up.
+
+2. **Integrating Winston for Logging:**
+   - **Issue:** Original code lacked logging, making it difficult to monitor application behavior.
+   - **Solution:** Configure Winston in `app.js` to log to files and the console (in non-production environments). Add logging statements in route handlers to log significant events, warnings, and errors.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal Winston configuration.
+   - **Step 2:** Reveal logging statements within routes.
+
+3. **Input Validation:**
+   - **Issue:** Inputs from requests are not validated, leading to potential errors or security vulnerabilities.
+   - **Solution:** Use `express-validator` middleware to validate and sanitize inputs for each route, ensuring data integrity and security.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal validation middleware.
+   - **Step 2:** Reveal error handling for validation failures.
+
+4. **Consistent Response Formats and Status Codes:**
+   - **Issue:** Mixing plain text and JSON responses can lead to inconsistencies.
+   - **Solution:** Standardize all responses to use JSON format with meaningful messages and appropriate HTTP status codes.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal JSON response formats.
+   - **Step 2:** Reveal status codes for different scenarios.
+
+---
+
+## **Complete Reveal.js Slide Deck with Animated Code Blocks**
+
+Below is a comprehensive example incorporating animated code blocks across multiple slides. For brevity, only selected slides are fully detailed. You can apply similar techniques to other slides as needed.
+
+---
+
+<!-- .slide: data-transition="fade" -->
+# NodeGuard: Mastering Debugging Techniques in Node.js
+
+---
+
+## **Phase 1: Introduction to Node.js Debugging**
+
+### Activity 1: Exploring Common Node.js Bugs
+
+#### Original (Buggy) Code
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Original (Buggy) Code
+
+```html
+<pre>
+<code class="javascript">
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware to parse JSON
+app.use(express.json());
+
+// Route to add two numbers
+app.post('/add', (req, res) => {
+    const { num1, num2 } = req.body;
+    const result = num1 + num2;
+    res.json({ result: result });
+});
+
+// Route to fetch user data (asynchronous)
+app.get('/user/:id', async (req, res) => {
+    const userId = req.params.id;
+    // Simulate fetching user from database
+    const user = await getUserById(userId);
+    res.json(user);
+});
+
+// Simulated database function with a bug
+function getUserById(id) {
+    return new Promise((resolve, reject) => {
+        // Intentional bug: missing 'data' variable
+        if (id === '1') {
+            resolve({ id: '1', name: 'John Doe' });
+        } else {
+            reject('User not found');
+        }
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+</code>
+</pre>
+```
+
+---
+
+#### Corrected (Solution) Code with Animations
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Corrected (Solution) Code
+
+```html
+<pre>
+<code class="javascript">
+// <span class="fragment">const express = require('express');</span>
+// <span class="fragment">const app = express();</span>
+// <span class="fragment">const port = 3000;</span>
+
+// <span class="fragment">app.use(express.json());</span>
+
+// <span class="fragment">// Route to add two numbers</span>
+// <span class="fragment">app.post('/add', (req, res) => {</span>
+// <span class="fragment">    let { num1, num2 } = req.body;</span>
+// <span class="fragment">    num1 = Number(num1);</span> <!-- Animation Step 1 -->
+// <span class="fragment">    num2 = Number(num2);</span> <!-- Animation Step 2 -->
+// <span class="fragment">    if (isNaN(num1) || isNaN(num2)) {</span>
+// <span class="fragment">        return res.status(400).json({ error: 'Invalid numbers provided.' });</span>
+// <span class="fragment">    }</span>
+// <span class="fragment">    const result = num1 + num2;</span>
+// <span class="fragment">    res.json({ result: result });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Route to fetch user data (asynchronous)</span>
+// <span class="fragment">app.get('/user/:id', async (req, res) => {</span>
+// <span class="fragment">    const userId = req.params.id;</span>
+// <span class="fragment">    try {</span>
+// <span class="fragment">        const user = await getUserById(userId);</span>
+// <span class="fragment">        res.json(user);</span>
+// <span class="fragment">    } catch (error) {</span>
+// <span class="fragment">        res.status(404).json({ error: error });</span>
+// <span class="fragment">    }</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Simulated database function</span>
+// <span class="fragment">function getUserById(id) {</span>
+// <span class="fragment">    return new Promise((resolve, reject) => {</span>
+// <span class="fragment">        if (id === '1') {</span>
+// <span class="fragment">            resolve({ id: '1', name: 'John Doe' });</span>
+// <span class="fragment">        } else {</span>
+// <span class="fragment">            reject('User not found');</span>
+// <span class="fragment">        }</span>
+// <span class="fragment">    });</span>
+// <span class="fragment">}</span>
+
+// <span class="fragment">// Start the server</span>
+// <span class="fragment">app.listen(port, () => {</span>
+// <span class="fragment">    console.log(`Server running on port ${port}`);</span>
+// <span class="fragment">});</span>
+</code>
+</pre>
+```
+
+---
+
+#### Explanations
+
+1. **Fixing the `/add` Route Logical Error:**
+   - **Issue:** If `num1` and `num2` are sent as strings (e.g., `"5"`), the addition operation `num1 + num2` results in string concatenation (`"55"` instead of `10`).
+   - **Solution:** Convert `num1` and `num2` to numbers using `Number()` before performing the addition. Additionally, check if the conversion results in `NaN` to handle invalid inputs gracefully.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal `num1 = Number(num1);`
+   - **Step 2:** Reveal `num2 = Number(num2);`
+
+2. **Handling Asynchronous Errors in `/user/:id` Route:**
+   - **Issue:** The `getUserById` function may reject the promise (e.g., if the user is not found), but there's no error handling in place, leading to unhandled promise rejections.
+   - **Solution:** Wrap the `await getUserById(userId)` call inside a `try-catch` block to handle potential errors and respond with appropriate HTTP status codes and error messages.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal the `try` block.
+   - **Step 2:** Reveal the `catch` block handling errors.
+
+---
+
+## **Another Example Slide with Animated Code Blocks**
+
+Here's another example from **Activity 8: Implementing Effective Logging**.
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## **Phase 3: Implementing Best Practices**
+
+### Activity 8: Implementing Effective Logging
+
+#### Original (Without Logging) Code
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Original (Without Logging) Code
+
+```html
+<pre>
+<code class="javascript">
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// In-memory data storage
+let data = [];
+
+// Route to add data
+app.post('/add', (req, res) => {
+    const { item } = req.body;
+    data.push(item);
+    res.send(`Item ${item} added.`);
+});
+
+// Route to get all data
+app.get('/data', (req, res) => {
+    res.json(data);
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Logging App running on port ${port}`);
+});
+</code>
+</pre>
+```
+
+---
+
+#### Enhanced (Solution) Code with Logging and Animations
+
+```html
+<!-- .slide: data-transition="fade" -->
+### Enhanced (Solution) Code with Logging and Best Practices
+
+```html
+<pre>
+<code class="javascript">
+// <span class="fragment">const express = require('express');</span>
+// <span class="fragment">const app = express();</span>
+// <span class="fragment">const port = 3000;</span>
+// <span class="fragment">const winston = require('winston');</span>
+
+// <span class="fragment">// Configure Winston logger</span>
+// <span class="fragment">const logger = winston.createLogger({</span>
+// <span class="fragment">    level: 'info',</span>
+// <span class="fragment">    format: winston.format.combine(</span>
+// <span class="fragment">        winston.format.timestamp(),</span>
+// <span class="fragment">        winston.format.json()</span>
+// <span class="fragment">    ),</span>
+// <span class="fragment">    transports: [</span>
+// <span class="fragment">        new winston.transports.File({ filename: 'error.log', level: 'error' }),</span>
+// <span class="fragment">        new winston.transports.File({ filename: 'combined.log' }),</span>
+// <span class="fragment">    ],</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// If we're not in production, log to the console as well</span>
+// <span class="fragment">if (process.env.NODE_ENV !== 'production') {</span>
+// <span class="fragment">    logger.add(new winston.transports.Console({</span>
+// <span class="fragment">        format: winston.format.simple(),</span>
+// <span class="fragment">    }));</span>
+// <span class="fragment">}</span>
+
+// <span class="fragment">// Middleware</span>
+// <span class="fragment">app.use(express.json());</span>
+
+// <span class="fragment">// In-memory data storage</span>
+// <span class="fragment">let data = [];</span>
+
+// <span class="fragment">// Route to add data</span>
+// <span class="fragment">app.post('/add', (req, res) => {</span>
+// <span class="fragment">    const { item } = req.body;</span>
+// <span class="fragment">    if (!item) {</span>
+// <span class="fragment">        logger.warn('Add Item - Missing item in request body.');</span>
+// <span class="fragment">        return res.status(400).json({ error: 'Item is required.' });</span>
+// <span class="fragment">    }</span>
+// <span class="fragment">    data.push(item);</span>
+// <span class="fragment">    logger.info(`Item added: ${item}`);</span>
+// <span class="fragment">    res.status(201).json({ message: `Item ${item} added.` });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Route to get all data</span>
+// <span class="fragment">app.get('/data', (req, res) => {</span>
+// <span class="fragment">    logger.info('Data retrieved.');</span>
+// <span class="fragment">    res.json(data);</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Global Error Handler</span>
+// <span class="fragment">app.use((err, req, res, next) => {</span>
+// <span class="fragment">    logger.error(`Error: ${err.message}`);</span>
+// <span class="fragment">    res.status(500).json({ error: 'Internal Server Error' });</span>
+// <span class="fragment">});</span>
+
+// <span class="fragment">// Start server</span>
+// <span class="fragment">app.listen(port, () => {</span>
+// <span class="fragment">    logger.info(`Logging App running on port ${port}`);</span>
+// <span class="fragment">});</span>
+</code>
+</pre>
+```
+
+---
+
+#### Explanations
+
+1. **Integrating Winston:**
+   - **Issue:** Without logging, it's difficult to monitor application behavior and troubleshoot issues.
+   - **Solution:** Use Winston to implement a robust logging system that records information, warnings, and errors.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal Winston import and configuration.
+   - **Step 2:** Reveal conditional console logging setup.
+   - **Step 3:** Reveal logging statements within routes.
+   - **Step 4:** Reveal global error handler with logging.
+
+2. **Input Validation with Logging:**
+   - **Issue:** Missing inputs can lead to unexpected behavior.
+   - **Solution:** Validate inputs and log warnings when validation fails, aiding in monitoring and troubleshooting.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal input validation checks.
+   - **Step 2:** Reveal warning logs for invalid inputs.
+
+3. **Consistent and Structured Logging:**
+   - **Benefit:** Structured logs (in JSON format) make it easier to parse and analyze logs, especially when integrating with log management systems or monitoring tools.
+
+   **Animation Steps:**
+   - **Step 1:** Reveal log formatting and transport configurations.
+   - **Step 2:** Reveal info and error log statements within the application.
+
+---
+
+## **Additional Slide Tips**
+
+1. **Using Fragment Classes Strategically:**
+   - Apply fragments to lines or sections of code that you want to discuss individually.
+   - Avoid overwhelming the audience by limiting the number of fragments per slide.
+
+2. **Highlighting Specific Concepts:**
+   - Combine fragments with CSS classes to highlight important parts as they appear.
+   - Example:
+     ```html
+     <span class="fragment highlight">const express = require('express');</span>
+     ```
+     ```css
+     .highlight {
+         background-color: yellow;
+     }
+     ```
+
+3. **Sequential Revealing for Complex Logic:**
+   - Use fragments to reveal lines of code that build upon each other, aiding in understanding step-by-step logic.
+
+4. **Balancing Text and Code:**
+   - Complement animated code blocks with bullet points or explanations that appear alongside the code fragments.
+
+5. **Interactive Demonstrations:**
+   - Incorporate live demos or code execution snippets after explaining critical code sections to reinforce learning.
+
+---
+
+## **Complete Reveal.js Presentation Structure**
+
+Here's a condensed version of how your Reveal.js presentation with animated code blocks might look. For full functionality, ensure that your `index.html` includes the necessary CSS and JavaScript for Reveal.js and syntax highlighting.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NodeGuard: Mastering Debugging Techniques in Node.js Applications</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.4.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.4.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.4.0/theme/solarized.min.css" id="theme">
+    <!-- Syntax Highlighting CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <style>
+        /* Custom highlight style */
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Insert all your slides here as detailed in the examples above -->
+        </div>
+    </div>
+
+    <!-- Reveal.js and dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.4.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.4.0/plugin/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.4.0/plugin/notes/notes.min.js"></script>
+    <!-- Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            plugins: [ RevealMarkdown, RevealNotes ],
+            slideNumber: true,
+            hash: true,
+            // Enable fragments
+            fragments: true,
+            // Transition settings
+            transition: 'fade', // none/fade/slide/convex/concave/zoom
+            // More configurations can be added here
+        });
+
+        // Initialize Highlight.js
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
+```
+
+---
+
+## **Final Notes**
+
+- **Consistency:** Apply fragment animations consistently across your slides to maintain a smooth presentation flow.
+
+- **Testing:** Preview your presentation frequently to ensure that animations work as intended and that fragments reveal in the correct order.
+
+- **Engagement:** Use animations to emphasize critical parts of the code, but avoid overusing them to prevent distraction.
+
+- **Documentation:** Comment your code blocks within slides to provide additional context when necessary.
+
+By integrating these animation techniques into your Reveal.js presentation, you'll create an engaging and educational experience that effectively communicates complex Node.js debugging and optimization concepts.
+
+If you need further customization or assistance with specific aspects of the Reveal.js presentation, feel free to ask!
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
