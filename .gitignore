@@ -10,3 +10,4 @@ src/
 .env
 .global-prompt.md
 favicon.ico
+*.md
