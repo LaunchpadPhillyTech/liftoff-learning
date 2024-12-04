@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ### Introduction to Sessions
+
+---
+
+#### **What are Sessions?**
+
+---
+
+**Key Concepts**
+- HTTP is stateless; sessions enable applications to maintain user state.
+- Session data is stored server-side with a unique ID sent via cookies.
+
+----
+
+**Hands-On Task:**
+1. **Basic Express Server Setup:**
+    ```javascript
+    const express = require('express');
+    const session = require('express-session');
+    const app = express();
+
+    app.use(session({
+        secret: 'secret_key',
+        resave: false,
+        saveUninitialized: true,
+    }));
+
+    app.get('/', (req, res) => {
+        res.send('Welcome to Session Demo!');
+    });
+
+    app.listen(3000, () => console.log('Server running on port 3000'));
+    ```
+2. **`/status` Route to Check Session:**
+    ```javascript
+    app.get('/status', (req, res) => {
+        if (req.session.username) {
+            res.send(`Session active for user: ${req.session.username}`);
+        } else {
+            res.send('No active session');
+        }
+    });
+    ```
+
+---
+
+#### **Creating Sessions**
+
+**Key Concepts:**
+- Sessions store data server-side, referenced by a session ID in cookies.
+- Session data is accessed through `req.session`.
+
+----
+
+**Hands-On Task:**
+1. **Set Session Data:**
+    ```javascript
+    app.get('/set-session', (req, res) => {
+        req.session.username = 'John Doe';
+        res.send('Session set!');
+    });
+    ```
+2. **Retrieve Session Data:**
+    ```javascript
+    app.get('/get-session', (req, res) => {
+        const username = req.session.username || 'Guest';
+        res.send(`Hello, ${username}`);
+    });
+    ```
+3. **Mini-Project (Session Counter):**
+    ```javascript
+    app.get('/counter', (req, res) => {
+        if (!req.session.views) req.session.views = 0;
+        req.session.views++;
+        res.send(`You have visited this page ${req.session.views} times`);
+    });
+    ```
+
+---
+
+#### **Session Expiry and Security**
+
+----
+
+**Key Concepts:**
+- Session expiration and cookie security (`httpOnly`, `secure`).
+
+1. **Session Expiry:**
+    ```javascript
+    app.use(session({
+        secret: 'secret_key',
+        resave: false,
+        saveUninitialized: true,
+        cookie: { maxAge: 120000 } // 2 minutes
+    }));
+    ```
+2. **Secure Cookies:**
+    ```javascript
+    cookie: {
+        secure: true, // Requires HTTPS
+        httpOnly: true, // Prevents client-side JS access
+        maxAge: 120000
+    }
+    ```
+
+---
+
+### Persisting Sessions in MySQL
+
+---
+
+#### **Setting up MySQL for Sessions**
+---
+
+**Key Concepts**
+- Storing session data in MySQL for persistence and scalability.
+
+----
+
+1. **MySQL Schema for Sessions:**
+    ```sql
+    CREATE TABLE sessions (
+        session_id VARCHAR(255) PRIMARY KEY,
+        data TEXT NOT NULL,
+        expires TIMESTAMP NOT NULL
+    );
+    ```
+
+2. **Connect Node.js to MySQL:**
+    ```javascript
+    const mysql = require('mysql2');
+    const db = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'Password$123',
+        database: 'session_management'
+    });
+    db.connect(err => console.log(err || 'Connected to MySQL'));
+    ```
+
+----
+
+#### **Integrating MySQL with Express-Session**
+
+**Key Concepts:**
+- Using `express-mysql-session` for MySQL-based session storage.
+
+1. **Set Up MySQL Store:**
+    ```javascript
+    const MySQLStore = require('express-mysql-session')(session);
+    const sessionStore = new MySQLStore({
+        host: 'localhost',
+        port: 3306,
+        user: 'root',
+        password: 'Password$123',
+        database: 'session_management'
+    });
+
+    app.use(session({
+        key: 'user_session',
+        secret: 'secret_key',
+        store: sessionStore,
+        resave: false,
+        saveUninitialized: false,
+    }));
+    ```
+
+2. **`/active-sessions` Route:**
+    ```javascript
+    app.get('/active-sessions', (req, res) => {
+        db.query('SELECT session_id, expires FROM sessions', (err, results) => {
+            if (err) return res.status(500).send('Error fetching sessions');
+            res.json(results);
+        });
+    });
+    ```
+
+----
+
+### Enhancing the Application with Authentication
+
+---
+
+#### **User Authentication**
+
+----
+
+1. **Login Route:**
+    ```javascript
+    app.post('/login', (req, res) => {
+        const { username, password } = req.body; // Simplified validation
+        if (username === 'admin' && password === 'password') {
+            req.session.user = { username, role: 'admin' };
+            res.send('Logged in');
+        } else {
+            res.status(401).send('Invalid credentials');
+        }
+    });
+    ```
+2. **Logout Route:**
+    ```javascript
+    app.get('/logout', (req, res) => {
+        req.session.destroy(err => {
+            if (err) return res.status(500).send('Error logging out');
+            res.send('Logged out');
+        });
+    });
+    ```
+
+----
+
+#### **Role-Based Access**
+
+1. **Middleware for Role-Based Access:**
+    ```javascript
+    const checkAdmin = (req, res, next) => {
+        if (req.session.user?.role !== 'admin') {
+            return res.status(403).send('Access denied');
+        }
+        next();
+    };
+
+    app.get('/admin', checkAdmin, (req, res) => {
+        res.send('Welcome Admin');
+    });
+    ```
+2. **Force Logout for Sessions:**
+    ```javascript
+    app.delete('/sessions/:id', (req, res) => {
+        const sessionId = req.params.id;
+        db.query('DELETE FROM sessions WHERE session_id = ?', [sessionId], (err) => {
+            if (err) return res.status(500).send('Error deleting session');
+            res.send('Session terminated');
+        });
+    });
+    ```
+
+---
+
+### Independent Project – User Dashboard
+
+**Expected Features:**
+- **Persistent Cart:** Store cart items in the session.
+- **Session Timeout:** Use `maxAge` or middleware to log out inactive users.
+- **Admin Panel:** View and manage all active sessions.
+
+**Example Deliverable Code:**
+- **Cart Management:**
+    ```javascript
+    app.post('/cart', (req, res) => {
+        const { item } = req.body;
+        if (!req.session.cart) req.session.cart = [];
+        req.session.cart.push(item);
+        res.send(req.session.cart);
+    });
+    ```
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
