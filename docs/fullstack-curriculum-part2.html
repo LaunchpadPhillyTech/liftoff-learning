@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Full Stack Web Development Course Curriculum
+
+---
+
+## API Development
+
+---
+
+### Project Work
+Build a complete RESTful API for product management with:
+- CRUD operations
+- Search and filtering
+- Pagination
+- Rate limiting
+- API documentation
+
+----
+
+### Activity 1: Template Engine Integration
+```javascript
+// EJS setup
+app.set('view engine', 'ejs');
+
+// Blog post schema
+CREATE TABLE posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    author_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (author_id) REFERENCES users(id)
+);
+
+// Render blog post
+app.get('/posts/:id', async (req, res) => {
+    try {
+        const [post] = await connection.promise().query(
+            `SELECT posts.*, users.username 
+             FROM posts 
+             JOIN users ON posts.author_id = users.id 
+             WHERE posts.id = ?`,
+            [req.params.id]
+        );
+        res.render('post', { post: post[0] });
+    } catch (error) {
+        next(error);
+    }
+});
+```
+
+---
+
+### Handling File Uploads
+```javascript
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage });
+
+// Handle image upload
+app.post('/upload', upload.single('image'), (req, res) => {
+    res.json({ 
+        url: `/uploads/${req.file.filename}`
+    });
+});
+
+// Create post with image
+app.post('/posts', upload.single('featured_image'), async (req, res) => {
+    const { title, content } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    
+    try {
+        const [result] = await connection.promise().query(
+            'INSERT INTO posts (title, content, image_url, author_id) VALUES (?, ?, ?, ?)',
+            [title, content, imageUrl, req.session.userId]
+        );
+        res.status(201).json({ id: result.insertId });
+    } catch (error) {
+        next(error);
+    }
+});
+```
+
+---
+
+## E-commerce Platform
+
+### Shopping Cart Implementation
+```javascript
+// Cart and Order schemas
+CREATE TABLE carts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cart_id INT,
+    product_id INT,
+    quantity INT DEFAULT 1,
+    FOREIGN KEY (cart_id) REFERENCES carts(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+// Add to cart
+app.post('/cart/add', async (req, res) => {
+    const { productId, quantity } = req.body;
+    try {
+        // Get or create cart
+        let [cart] = await connection.promise().query(
+            'SELECT * FROM carts WHERE user_id = ? AND status = "active"',
+            [req.session.userId]
+        );
+        
+        if (cart.length === 0) {
+            const [newCart] = await connection.promise().query(
+                'INSERT INTO carts (user_id) VALUES (?)',
+                [req.session.userId]
+            );
+            cart = { id: newCart.insertId };
+        }
+        
+        // Add item to cart
+        await connection.promise().query(
+            `INSERT INTO cart_items (cart_id, product_id, quantity)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE quantity = quantity + ?`,
+            [cart.id, productId, quantity, quantity]
+        );
+        
+        res.status(201).json({ message: 'Added to cart' });
+    } catch (error) {
+        next(error);
+    }
+});
+```
+
+---
+
+### Order Processing & Payments
+```javascript
+// Order processing
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    total_amount DECIMAL(10,2),
+    status ENUM('pending', 'paid', 'shipped', 'delivered') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+// Stripe payment integration
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+app.post('/create-payment-intent', async (req, res) => {
+    const { orderId } = req.body;
+    
+    try {
+        const [order] = await connection.promise().query(
+            'SELECT total_amount FROM orders WHERE id = ?',
+            [orderId]
+        );
+        
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(order[0].total_amount * 100),
+            currency: 'usd'
+        });
+        
+        res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+        next(error);
+    }
+});
+```
+
+---
+
+### Independant Work 
+Add a User interface to the E-commerence store
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
