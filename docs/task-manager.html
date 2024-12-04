@@ -19,7 +19,30 @@
           <textarea data-template>
             # Full Stack Web Development Course Curriculum
 
-## Weeks 3-4: Task Manager
+---
+
+### Warm-up Serving Static Pages
+
+```javascript
+// Serving static files
+app.use(express.static('public'));
+
+// Serving a static HTML
+app.get('/index', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+```
+
+---
+
+### Day 9-10: Student Project Work
+Add the following routes/pages. Add the html element to list your GitHub projects
+- Home page
+- About page
+- Contact form
+- Projects
+
+----
 
 ### Day 9-10: Co-op Project Work MYSQL & Nodejs
 Build a task manager application with:
@@ -27,6 +50,8 @@ Build a task manager application with:
 - Task list view
 - Update task status
 - Delete tasks
+
+---
 
 ### Day 1-2: MySQL Setup
 ```javascript
@@ -38,7 +63,11 @@ const connection = mysql.createConnection({
     password: 'Password$123',
     database: 'task_manager'
 });
+```
 
+---
+
+```sql
 // Database schema
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,6 +77,8 @@ CREATE TABLE tasks (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+---
 
 ### Day 3-5: CRUD Operations
 ```javascript
