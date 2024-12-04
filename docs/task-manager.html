@@ -67,8 +67,8 @@ const connection = mysql.createConnection({
 
 ---
 
+###  Database schema
 ```sql
-// Database schema
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -101,6 +101,8 @@ app.get('/tasks', (req, res) => {
     });
 });
 ```
+
+---
 
 ### Form Handling & Validation
 ```javascript
