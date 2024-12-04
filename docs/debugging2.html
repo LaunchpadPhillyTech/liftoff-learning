@@ -1,0 +1,1612 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # NodeGuard: Mastering Debugging Techniques in Node.js
+
+---
+
+### Activity 1: Warm-up Exploring Common Bugs
+
+#### Original (Buggy) Code
+
+```javascript
+// app.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware to parse JSON
+app.use(express.json());
+
+// Route to add two numbers
+app.post('/add', (req, res) => {
+    const { num1, num2 } = req.body;
+    const result = num1 + num2;
+    res.json({ result: result });
+});
+
+// Route to fetch user data (asynchronous)
+app.get('/user/:id', async (req, res) => {
+    const userId = req.params.id;
+    // Simulate fetching user from database
+    const user = await getUserById(userId);
+    res.json(user);
+});
+
+// Simulated database function with a bug
+function getUserById(id) {
+    return new Promise((resolve, reject) => {
+        // Intentional bug: missing 'data' variable
+        if (id === '1') {
+            resolve({ id: '1', name: 'John Doe' });
+        } else {
+            reject('User not found');
+        }
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+```
+
+<!--
+#### Corrected (Solution) Code
+ 
+```javascript
+// app.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware to parse JSON
+app.use(express.json());
+
+// Route to add two numbers
+app.post('/add', (req, res) => {
+    let { num1, num2 } = req.body;
+
+    // Convert to numbers to prevent string concatenation
+    num1 = Number(num1);
+    num2 = Number(num2);
+
+    if (isNaN(num1) || isNaN(num2)) {
+        return res.status(400).json({ error: 'Invalid numbers provided.' });
+    }
+
+    const result = num1 + num2;
+    res.json({ result: result });
+});
+
+// Route to fetch user data (asynchronous)
+app.get('/user/:id', async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const user = await getUserById(userId);
+        res.json(user);
+    } catch (error) {
+        res.status(404).json({ error: error });
+    }
+});
+
+// Simulated database function
+function getUserById(id) {
+    return new Promise((resolve, reject) => {
+        if (id === '1') {
+            resolve({ id: '1', name: 'John Doe' });
+        } else {
+            reject('User not found');
+        }
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+```
+--->
+----
+
+#### Solution Explanations
+
+1. **Fixing the `/add` Route Logical Error:**
+   - **Issue:** If `num1` and `num2` are sent as strings (e.g., `"5"`), the addition operation `num1 + num2` results in string concatenation (`"55"` instead of `10`).
+   - **Solution:** Convert `num1` and `num2` to numbers using `Number()` before performing the addition. Additionally, check if the conversion results in `NaN` to handle invalid inputs gracefully.
+
+2. **Handling Asynchronous Errors in `/user/:id` Route:**
+   - **Issue:** The `getUserById` function may reject the promise (e.g., if the user is not found), but there's no error handling in place, leading to unhandled promise rejections.
+   - **Solution:** Wrap the `await getUserById(userId)` call inside a `try-catch` block to handle potential errors and respond with appropriate HTTP status codes and error messages.
+
+3. **Clarifying the `getUserById` Function:**
+   - **Issue:** The comment mentions a missing `'data'` variable, but the function works correctly by resolving or rejecting based on the `id`.
+   - **Solution:** Remove or update the comment to accurately reflect the function's behavior, ensuring clarity.
+
+---
+
+<!-- .slide: data-transition="fade" -->
+### Activity 2: Setting Up Your Debugging Environment
+
+---
+
+#### Steps
+
+1. **Install Visual Studio Code (VS Code):**
+   - Download and install VS Code from [here](https://code.visualstudio.com/).
+
+2. **Install Node.js:**
+   - Download and install Node.js from [here](https://nodejs.org/).
+
+3. **Configure VS Code for Node.js Debugging:**
+   - Open VS Code.
+   - Install the "Debugger for Chrome" extension if needed.
+   - Create a `launch.json` file by navigating to the Debug view (`Ctrl + Shift + D`) and clicking on the gear icon.
+   - Add the following configuration:
+
+```json
+
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/app.js",
+            "restart": true,
+            "protocol": "inspector"
+        }
+    ]
+}
+```
+
+---
+
+4. **Running the Debugger:**
+   - Set breakpoints in your `app.js` file by clicking in the gutter next to the line numbers.
+   - Start debugging by pressing `F5` or clicking the green play button in the Debug view.
+   - Use the Debug Console and Variables pane to inspect variables and control execution flow.
+
+5. **Using Node.js Inspector:**
+   - Run your application with the `--inspect` flag:
+
+```bash
+node --inspect app.js
+```
+   - Open `chrome://inspect` in Google Chrome.
+   - Click on "Open dedicated DevTools for Node" to start debugging.
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Introduction to Node.js Debugging
+
+### Activity 3: Simple Bug Fixing Exercise
+
+#### Original (Buggy) Code
+
+```javascript
+// simpleApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Route to greet user
+app.get('/greet', (req, res) => {
+    const name = req.query.name;
+    if (name = '') { // Intentional bug: using '=' instead of '==='
+        res.send('Hello, Stranger!');
+    } else {
+        res.send('Hello, ' + name + '!');
+    }
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Simple App running on port ${port}`);
+});
+```
+
+---
+
+<!-- 
+#### Corrected (Solution) Code
+
+```javascript
+// simpleApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Route to greet user
+app.get('/greet', (req, res) => {
+    const name = req.query.name;
+    if (name === undefined || name.trim() === '') { // Corrected condition
+        res.send('Hello, Stranger!');
+    } else {
+        res.send('Hello, ' + name + '!');
+    }
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Simple App running on port ${port}`);
+});
+```
+-->
+----
+
+#### Solution Explanations
+
+1. **Fixing the Condition in the `/greet` Route:**
+   - **Issue:** The condition `if (name = '')` assigns an empty string to `name`, which always evaluates to `false` because an empty string is falsy.
+   - **Solution:** Replace the assignment operator `=` with the strict equality operator `===` to properly compare `name` with an empty string. Additionally, check if `name` is `undefined` or contains only whitespace using `name.trim() === ''`.
+
+2. **Enhancing Validation:**
+   - **Issue:** Without proper validation, the application may greet an empty string instead of defaulting to "Stranger" when `name` is not provided.
+   - **Solution:** Add an additional check for `undefined` and use `trim()` to ensure that `name` is not just whitespace.
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Advanced Debugging Techniques
+
+### Activity 4: Asynchronous Code Debugging
+
+#### Original (Buggy) Code
+
+```javascript
+// asyncApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Simulated asynchronous function with a bug
+function fetchData(callback) {
+    setTimeout(() => {
+        const data = { id: 1, name: 'Sample Data' };
+        callback(data);
+    }, 1000);
+}
+
+// Route to get data using callbacks
+app.get('/data-callback', (req, res) => {
+    fetchData((data) => {
+        res.json(data);
+    });
+});
+
+// Route to get data using Promises
+app.get('/data-promise', (req, res) => {
+    fetchDataPromise().then(data => {
+        res.json(data);
+    });
+});
+
+// Simulated fetchDataPromise with a bug (never resolves)
+function fetchDataPromise() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 2, name: 'Promise Data' };
+            // Missing resolve or reject
+        }, 1000);
+    });
+}
+
+// Route to get data using async/await
+app.get('/data-async', async (req, res) => {
+    const data = await fetchDataAsync();
+    res.json(data);
+});
+
+// Simulated fetchDataAsync with a bug (throws instead of rejecting)
+function fetchDataAsync() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 3, name: 'Async Data' };
+            reject(data); // Intentional bug: should resolve
+        }, 1000);
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Async App running on port ${port}`);
+});
+```
+
+---
+
+#### Corrected (Solution) Code
+
+```javascript
+// asyncApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Simulated asynchronous function
+function fetchData(callback) {
+    setTimeout(() => {
+        const data = { id: 1, name: 'Sample Data' };
+        callback(null, data); // Pass error as first argument
+    }, 1000);
+}
+
+// Route to get data using callbacks
+app.get('/data-callback', (req, res) => {
+    fetchData((err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch data.' });
+        }
+        res.json(data);
+    });
+});
+
+// Route to get data using Promises
+app.get('/data-promise', (req, res) => {
+    fetchDataPromise()
+        .then(data => {
+            res.json(data);
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to fetch data.' });
+        });
+});
+
+// Corrected fetchDataPromise to resolve the Promise
+function fetchDataPromise() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 2, name: 'Promise Data' };
+            resolve(data); // Correctly resolve the Promise
+        }, 1000);
+    });
+}
+
+// Route to get data using async/await
+app.get('/data-async', async (req, res) => {
+    try {
+        const data = await fetchDataAsync();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch data.' });
+    }
+});
+
+// Corrected fetchDataAsync to resolve instead of rejecting
+function fetchDataAsync() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 3, name: 'Async Data' };
+            resolve(data); // Correctly resolve the Promise
+        }, 1000);
+    });
+}
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Async App running on port ${port}`);
+});
+```
+
+----
+
+#### Solution Explanations
+
+1. **Fixing `fetchDataPromise`:**
+   - **Issue:** The function `fetchDataPromise` does not call `resolve` or `reject`, causing the Promise to remain pending.
+   - **Solution:** Add `resolve(data);` within the `setTimeout` to ensure the Promise is fulfilled after data is fetched.
+
+2. **Fixing `fetchDataAsync`:**
+   - **Issue:** The function `fetchDataAsync` calls `reject(data);` instead of `resolve(data);`, incorrectly signaling an error even when data is fetched successfully.
+   - **Solution:** Replace `reject(data);` with `resolve(data);` to correctly resolve the Promise when data is available.
+
+3. **Enhancing Callback Handling in `/data-callback`:**
+   - **Issue:** The original `fetchData` function does not handle errors.
+   - **Solution:** Modify the callback to accept an error as the first argument (`callback(err, data)`) and handle it appropriately in the route.
+
+4. **Adding Error Handling in Promises and Async/Await:**
+   - **Issue:** Without proper error handling, rejected Promises or exceptions in async functions can cause unhandled rejections.
+   - **Solution:** Add `.catch` blocks for Promises and `try-catch` blocks for async/await to handle errors gracefully and respond with appropriate HTTP status codes and messages.
+
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Advanced Debugging Techniques
+
+### Activity 5: Memory Leak Detection
+
+#### Original (Buggy) Code
+
+```javascript
+// memoryLeakApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Route that causes a memory leak
+app.get('/leak', (req, res) => {
+    for (let i = 0; i < 10000; i++) {
+        memoryLeakArray.push({ index: i, data: 'This is some data' });
+    }
+    res.send('Memory leak triggered!');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Memory Leak App running on port ${port}`);
+});
+```
+
+---
+
+#### Corrected (Solution) Code
+
+```javascript
+// memoryLeakApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+let memoryLeakArray = [];
+const MAX_MEMORY = 10000;
+
+// Route that triggers memory usage
+app.get('/leak', (req, res) => {
+    for (let i = 0; i < 1000; i++) { // Reduce the number of iterations
+        memoryLeakArray.push({ index: i, data: 'This is some data' });
+    }
+
+    // Implement memory management to prevent leaks
+    if (memoryLeakArray.length > MAX_MEMORY) {
+        memoryLeakArray.splice(0, memoryLeakArray.length - MAX_MEMORY); // Remove oldest entries
+    }
+
+    res.send('Memory usage managed!');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Memory Leak App running on port ${port}`);
+});
+```
+
+----
+
+#### Solution Explanations
+
+1. **Limiting the Size of `memoryLeakArray`:**
+   - **Issue:** Continuously pushing data into `memoryLeakArray` without any limits leads to unbounded memory consumption.
+   - **Solution:** Implement a maximum limit (`MAX_MEMORY`) for the array. When the array exceeds this limit, remove the oldest entries using `splice` to prevent memory from growing indefinitely.
+
+2. **Reducing Data Pushed per Request:**
+   - **Issue:** Pushing 10,000 items per request exacerbates memory usage.
+   - **Solution:** Reduce the number of iterations (e.g., to 1,000) to control memory growth.
+
+3. **Using Profiling Tools to Detect Leaks:**
+   - While not shown in the code, learners should use Clinic.js or similar tools to profile the application before and after fixes to observe the impact on memory usage.
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Advanced Debugging Techniques
+
+### Activity 6: Debugging a Faulty Application
+
+#### Original (Buggy) Code
+
+```javascript
+// faultyApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Simulated database with a bug
+const database = {
+    users: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+};
+
+// Route to get user by ID
+app.get('/user/:id', async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const user = await getUser(userId);
+    res.json(user);
+});
+
+// Simulated asynchronous function with a bug (missing return)
+function getUser(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const user = database.users.find(u => u.id === id);
+            if (user) {
+                resolve(user);
+            } else {
+                reject('User not found');
+            }
+        }, 500);
+    });
+}
+
+// Route that causes a memory leak
+app.get('/leak', (req, res) => {
+    for (let i = 0; i < 5000; i++) {
+        database.users.push({ id: i + 3, name: `User${i + 3}` });
+    }
+    res.send('Memory leak triggered!');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Faulty App running on port ${port}`);
+});
+```
+
+---
+
+#### Corrected (Solution) Code
+
+```javascript
+// faultyApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Simulated database with corrected data management
+const database = {
+    users: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+};
+
+// Route to get user by ID with error handling
+app.get('/user/:id', async (req, res) => {
+    const userId = parseInt(req.params.id);
+    try {
+        const user = await getUser(userId);
+        res.json(user);
+    } catch (error) {
+        res.status(404).json({ error: error });
+    }
+});
+
+// Corrected asynchronous function
+function getUser(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const user = database.users.find(u => u.id === id);
+            if (user) {
+                resolve(user);
+            } else {
+                reject('User not found');
+            }
+        }, 500);
+    });
+}
+
+// Route that manages memory usage and prevents duplicates
+app.get('/leak', (req, res) => {
+    const newUsers = [];
+    for (let i = 0; i < 500; i++) { // Reduced iterations to prevent excessive memory usage
+        const newId = database.users.length + 1;
+        newUsers.push({ id: newId, name: `User${newId}` });
+    }
+    database.users = database.users.concat(newUsers); // Batch addition
+
+    res.send('Memory usage managed!');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Faulty App running on port ${port}`);
+});
+```
+
+----
+
+#### Solution Explanations
+
+1. **Adding Error Handling in `/user/:id` Route:**
+   - **Issue:** Without a `try-catch` block, if `getUser` rejects the Promise (e.g., user not found), it results in an unhandled promise rejection.
+   - **Solution:** Wrap the `await getUser(userId)` call in a `try-catch` block to handle errors gracefully and respond with appropriate HTTP status codes and error messages.
+
+2. **Fixing the Memory Leak in `/leak` Route:**
+   - **Issue:** The original `/leak` route pushes 5,000 new users into `database.users` with each request, leading to unbounded memory growth.
+   - **Solution:**
+     - **Reduce Iterations:** Lower the number of iterations (e.g., to 500) to control memory usage.
+     - **Prevent Duplicate IDs:** Calculate `newId` based on the current length of `database.users` to ensure unique IDs.
+     - **Batch Addition:** Use `concat` to add all new users at once, which is more efficient and reduces the likelihood of data inconsistency.
+
+3. **Overall Code Improvements:**
+   - **Error Responses:** Provide meaningful error messages and appropriate HTTP status codes to inform clients about issues.
+   - **Memory Management:** Implement strategies to prevent unbounded memory growth, ensuring application stability.
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Implementing Best Practices
+
+### Activity 7: Writing Maintainable and Debuggable Code
+
+#### Original (Poorly Structured) Code
+
+```javascript
+// poorCodeApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// In-memory data storage
+let users = [];
+
+// Add user
+app.post('/add-user', (req, res) => {
+    const { name } = req.body;
+    const id = users.length + 1;
+    users.push({ id, name });
+    res.send(`User ${name} added with ID ${id}`);
+});
+
+// Get user by ID
+app.get('/user/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const user = users.find(u => u.id === id);
+    if (user) {
+        res.json(user);
+    } else {
+        res.send('User not found');
+    }
+});
+
+// Update user
+app.put('/update-user/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name } = req.body;
+    const user = users.find(u => u.id === id);
+    if (user) {
+        user.name = name;
+        res.send(`User ID ${id} updated to ${name}`);
+    } else {
+        res.send('User not found');
+    }
+});
+
+// Delete user
+app.delete('/delete-user/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    users = users.filter(u => u.id !== id);
+    res.send(`User ID ${id} deleted`);
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Poor Code App running on port ${port}`);
+});
+```
+
+---
+
+#### Corrected (Solution) Code with Best Practices Part 1
+
+```javascript
+// app.js
+const express = require('express');
+const app = express();
+const port = 3000;
+const winston = require('winston');
+
+// Configure Winston logger
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' }),
+    ],
+});
+
+// If not in production, log to the console
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple(),
+    }));
+}
+
+// Middleware
+app.use(express.json());
+
+// Import routes
+const userRoutes = require('./routes/userRoutes');
+
+// Use routes
+app.use('/users', userRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    logger.error(`Unhandled Error: ${err.message}`);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Start server
+app.listen(port, () => {
+    logger.info(`Clean Code App running on port ${port}`);
+});
+```
+
+---
+
+#### Corrected (Solution) Code with Best Practices Part 2
+
+```javascript
+// routes/userRoutes.js
+const express = require('express');
+const router = express.Router();
+const { body, param, validationResult } = require('express-validator');
+const winston = require('winston');
+
+// In-memory data storage
+let users = [];
+
+// Add user
+router.post(
+    '/add',
+    body('name').isString().withMessage('Name must be a string'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Add User Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name } = req.body;
+        const id = users.length + 1;
+        users.push({ id, name });
+        winston.info(`User added: ${name} with ID ${id}`);
+        res.status(201).json({ message: `User ${name} added with ID ${id}`, user: { id, name } });
+    }
+);
+
+// Get user by ID
+router.get(
+    '/:id',
+    param('id').isInt({ gt: 0 }).withMessage('ID must be a positive integer'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Get User Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const id = parseInt(req.params.id);
+        const user = users.find(u => u.id === id);
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    }
+);
+
+// Update user
+router.put(
+    '/update/:id',
+    [
+        param('id').isInt({ gt: 0 }).withMessage('ID must be a positive integer'),
+        body('name').isString().withMessage('Name must be a string'),
+    ],
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Update User Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const id = parseInt(req.params.id);
+        const { name } = req.body;
+        const user = users.find(u => u.id === id);
+        if (user) {
+            user.name = name;
+            winston.info(`User ID ${id} updated to ${name}`);
+            res.json({ message: `User ID ${id} updated to ${name}`, user });
+        } else {
+            winston.warn(`Update Failed - User not found: ID ${id}`);
+            res.status(404).json({ error: 'User not found' });
+        }
+    }
+);
+
+// Delete user
+router.delete(
+    '/delete/:id',
+    param('id').isInt({ gt: 0 }).withMessage('ID must be a positive integer'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Delete User Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const id = parseInt(req.params.id);
+        const userIndex = users.findIndex(u => u.id === id);
+        if (userIndex !== -1) {
+            users.splice(userIndex, 1);
+            winston.info(`User ID ${id} deleted`);
+            res.json({ message: `User ID ${id} deleted` });
+        } else {
+            winston.warn(`Delete Failed - User not found: ID ${id}`);
+            res.status(404).json({ error: 'User not found' });
+        }
+    }
+);
+
+module.exports = router;
+```
+
+----
+
+#### Solution Explanations
+
+1. **Modularization:**
+   - **Issue:** All routes and logic are in a single file, making it difficult to manage and scale.
+   - **Solution:** Separate routes into individual modules (e.g., `userRoutes.js`) and import them into the main `app.js` file. This improves code organization and maintainability.
+
+2. **Integrating Winston for Logging:**
+   - **Issue:** Original code lacked logging, making it difficult to monitor application behavior.
+   - **Solution:** Configure Winston in `app.js` to log to files and the console (in non-production environments). Add logging statements in route handlers to log significant events, warnings, and errors.
+
+3. **Input Validation:**
+   - **Issue:** Inputs from requests are not validated, leading to potential errors or security vulnerabilities.
+   - **Solution:** Use `express-validator` middleware to validate and sanitize inputs for each route, ensuring data integrity and security.
+
+4. **Consistent Response Formats and Status Codes:**
+   - **Issue:** Mixing plain text and JSON responses can lead to inconsistencies.
+   - **Solution:** Standardize all responses to use JSON format with meaningful messages and appropriate HTTP status codes.
+
+----
+
+5. **Global Error Handling:**
+   - **Issue:** Unhandled errors can crash the application or leave it in an unstable state.
+   - **Solution:** Implement a global error handler that logs errors and responds with a standardized error message to clients.
+
+6. **Preventing Duplicate IDs:**
+   - **Issue:** Potential duplicate IDs can lead to data inconsistency.
+   - **Solution:** Use unique identifiers for users or ensure that user names are unique. In this example, user IDs are auto-incremented based on the array length.
+
+7. **Logging Best Practices:**
+   - **Info Logs:** Record successful operations like adding, updating, and deleting users.
+   - **Warn Logs:** Capture potential issues such as validation failures or attempts to update/delete non-existent users.
+   - **Error Logs:** Log unexpected errors captured by the global error handler.
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Implementing Best Practices
+
+### Activity 8: Implementing Effective Logging
+
+#### Original (Without Logging) Code
+
+```javascript
+// loggingApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// In-memory data storage
+let data = [];
+
+// Route to add data
+app.post('/add', (req, res) => {
+    const { item } = req.body;
+    data.push(item);
+    res.send(`Item ${item} added.`);
+});
+
+// Route to get all data
+app.get('/data', (req, res) => {
+    res.json(data);
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Logging App running on port ${port}`);
+});
+```
+
+---
+
+#### Enhanced (Solution) Code with Logging
+
+```javascript
+// loggingApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+const winston = require('winston');
+
+// Configure Winston logger
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' }),
+    ],
+});
+
+// If we're not in production, log to the console as well
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple(),
+    }));
+}
+
+// Middleware
+app.use(express.json());
+
+// In-memory data storage
+let data = [];
+
+// Route to add data
+app.post('/add', (req, res) => {
+    const { item } = req.body;
+    if (!item) {
+        logger.warn('Add Item - Missing item in request body.');
+        return res.status(400).json({ error: 'Item is required.' });
+    }
+    data.push(item);
+    logger.info(`Item added: ${item}`);
+    res.status(201).json({ message: `Item ${item} added.` });
+});
+
+// Route to get all data
+app.get('/data', (req, res) => {
+    logger.info('Data retrieved.');
+    res.json(data);
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    logger.error(`Error: ${err.message}`);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Start server
+app.listen(port, () => {
+    logger.info(`Logging App running on port ${port}`);
+});
+```
+
+----
+
+#### Solution Explanations
+
+1. **Integrating Winston:**
+   - **Issue:** Without logging, it's difficult to monitor application behavior and troubleshoot issues.
+   - **Solution:** Use Winston to implement a robust logging system that records information, warnings, and errors.
+
+2. **Configuring Winston Logger:**
+   - **Transports:**
+     - **File Transport:** Logs are saved to files (`error.log` for errors and `combined.log` for all logs).
+     - **Console Transport:** In non-production environments, logs are also output to the console for easier debugging during development.
+   - **Format:**
+     - Logs include timestamps and are formatted in JSON for structured logging.
+
+3. **Adding Logging Statements:**
+   - **Info Logs:** Record significant events like server start-up and data retrieval.
+   - **Warn Logs:** Capture potential issues, such as missing required fields in requests.
+   - **Error Logs:** Log unexpected errors captured by the global error handler.
+
+4. **Global Error Handler:**
+   - **Issue:** Unhandled errors can crash the application or leave it in an unstable state.
+   - **Solution:** Implement a global error handler that logs errors and responds with a standardized error message to clients.
+
+5. **Input Validation with Logging:**
+   - **Issue:** Missing inputs can lead to unexpected behavior.
+   - **Solution:** Validate inputs and log warnings when validation fails, aiding in monitoring and troubleshooting.
+
+6. **Consistent and Structured Logging:**
+   - **Benefit:** Structured logs (in JSON format) make it easier to parse and analyze logs, especially when integrating with log management systems or monitoring tools.
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Implementing Best Practices
+
+### Activity 9: Refactoring and Logging Implementation Project
+
+#### Original (Poorly Structured and Unlogged) Code
+
+```javascript
+// originalApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// In-memory data storage
+let products = [];
+
+// Add product
+app.post('/add-product', (req, res) => {
+    const { name, price } = req.body;
+    products.push({ name, price });
+    res.send(`Product ${name} added with quantity ${price}.`);
+});
+
+// Get all products
+app.get('/products', (req, res) => {
+    res.json(products);
+});
+
+// Update product
+app.put('/update-product/:name', (req, res) => {
+    const { price } = req.body;
+    const product = products.find(p => p.name === req.params.name);
+    if (product) {
+        product.price = price;
+        res.send(`Product ${product.name} updated to ${price}.`);
+    } else {
+        res.send('Product not found.');
+    }
+});
+
+// Delete product
+app.delete('/delete-product/:name', (req, res) => {
+    products = products.filter(p => p.name !== req.params.name);
+    res.send(`Product ${req.params.name} deleted.`);
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Original App running on port ${port}`);
+});
+```
+
+---
+
+#### Refactored (Solution) Code with Logging and Best Practices
+
+```javascript
+// app.js
+const express = require('express');
+const app = express();
+const port = 3000;
+const winston = require('winston');
+
+// Configure Winston logger
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' }),
+    ],
+});
+
+// If not in production, log to the console
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple(),
+    }));
+}
+
+// Middleware
+app.use(express.json());
+
+// Import routes
+const productRoutes = require('./routes/productRoutes');
+
+// Use routes
+app.use('/products', productRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    logger.error(`Unhandled Error: ${err.message}`);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Start server
+app.listen(port, () => {
+    logger.info(`Refactored App running on port ${port}`);
+});
+```
+
+```javascript
+// routes/productRoutes.js
+const express = require('express');
+const router = express.Router();
+const { body, param, validationResult } = require('express-validator');
+const winston = require('winston');
+
+// In-memory data storage
+let products = [];
+
+// Add product
+router.post(
+    '/add',
+    [
+        body('name').isString().withMessage('Name must be a string'),
+        body('price').isFloat({ gt: 0 }).withMessage('Price must be a positive number'),
+    ],
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Add Product Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name, price } = req.body;
+        products.push({ name, price });
+        winston.info(`Product added: ${name} at price ${price}`);
+        res.status(201).json({ message: `Product ${name} added.`, product: { name, price } });
+    }
+);
+
+// Get all products
+router.get('/', (req, res, next) => {
+    winston.info('Retrieved all products.');
+    res.json(products);
+});
+
+// Update product
+router.put(
+    '/update/:name',
+    [
+        param('name').isString().withMessage('Name must be a string'),
+        body('price').isFloat({ gt: 0 }).withMessage('Price must be a positive number'),
+    ],
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Update Product Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { price } = req.body;
+        const product = products.find(p => p.name === req.params.name);
+        if (product) {
+            product.price = price;
+            winston.info(`Product updated: ${product.name} to price ${price}`);
+            res.json({ message: `Product ${product.name} updated to ${price}.`, product });
+        } else {
+            winston.warn(`Update Failed - Product not found: ${req.params.name}`);
+            res.status(404).json({ error: 'Product not found.' });
+        }
+    }
+);
+
+// Delete product
+router.delete(
+    '/delete/:name',
+    param('name').isString().withMessage('Name must be a string'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            winston.warn(`Delete Product Validation Failed: ${JSON.stringify(errors.array())}`);
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const initialLength = products.length;
+        products = products.filter(p => p.name !== req.params.name);
+        if (products.length < initialLength) {
+            winston.info(`Product deleted: ${req.params.name}`);
+            res.json({ message: `Product ${req.params.name} deleted.` });
+        } else {
+            winston.warn(`Delete Failed - Product not found: ${req.params.name}`);
+            res.status(404).json({ error: 'Product not found.' });
+        }
+    }
+);
+
+module.exports = router;
+```
+
+```javascript
+// test/productRoutes.test.js
+const request = require('supertest');
+const app = require('../app');
+const { expect } = require('chai');
+
+describe('Product Routes API', () => {
+    beforeEach(() => {
+        // Reset products before each test
+        while (products.length > 0) {
+            products.pop();
+        }
+    });
+
+    describe('POST /products/add', () => {
+        it('should add a new product successfully', (done) => {
+            request(app)
+                .post('/products/add')
+                .send({ name: 'Laptop', price: 1500 })
+                .expect(201)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.have.property('message', 'Product Laptop added.');
+                    expect(res.body.product).to.deep.equal({ name: 'Laptop', price: 1500 });
+                    done();
+                });
+        });
+
+        it('should fail to add a product with invalid data', (done) => {
+            request(app)
+                .post('/products/add')
+                .send({ name: '', price: -100 })
+                .expect(400)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.have.property('errors');
+                    expect(res.body.errors).to.be.an('array').that.is.not.empty;
+                    done();
+                });
+        });
+    });
+
+    describe('GET /products', () => {
+        it('should retrieve all products', (done) => {
+            // Add sample products
+            products.push({ name: 'Phone', price: 800 });
+            products.push({ name: 'Tablet', price: 600 });
+
+            request(app)
+                .get('/products')
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.be.an('array').that.has.lengthOf(2);
+                    expect(res.body).to.deep.include({ name: 'Phone', price: 800 });
+                    expect(res.body).to.deep.include({ name: 'Tablet', price: 600 });
+                    done();
+                });
+        });
+    });
+
+    describe('PUT /products/update/:name', () => {
+        it('should update an existing product', (done) => {
+            // Add a product first
+            products.push({ name: 'Monitor', price: 300 });
+
+            request(app)
+                .put('/products/update/Monitor')
+                .send({ price: 350 })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.have.property('message', 'Product Monitor updated to 350.');
+                    expect(res.body.product).to.deep.equal({ name: 'Monitor', price: 350 });
+                    done();
+                });
+        });
+
+        it('should return 404 for non-existent product', (done) => {
+            request(app)
+                .put('/products/update/NonExistentProduct')
+                .send({ price: 500 })
+                .expect(404)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.have.property('error', 'Product not found.');
+                    done();
+                });
+        });
+    });
+
+    describe('DELETE /products/delete/:name', () => {
+        it('should delete an existing product', (done) => {
+            // Add a product first
+            products.push({ name: 'Keyboard', price: 100 });
+
+            request(app)
+                .delete('/products/delete/Keyboard')
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.have.property('message', 'Product Keyboard deleted.');
+                    done();
+                });
+        });
+
+        it('should return 404 for non-existent product', (done) => {
+            request(app)
+                .delete('/products/delete/NonExistentProduct')
+                .expect(404)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).to.have.property('error', 'Product not found.');
+                    done();
+                });
+        });
+    });
+});
+```
+
+----
+
+#### Solution Explanations
+
+1. **Modularizing Routes:**
+   - **Issue:** Original code had all routes in a single file, making it hard to maintain.
+   - **Solution:** Separate product-related routes into `productRoutes.js` within a `routes` directory and import them into `app.js`.
+
+2. **Integrating Winston for Logging:**
+   - **Issue:** Original code lacked logging, making it difficult to monitor application behavior.
+   - **Solution:** Configure Winston in `app.js` to log to files and the console (in non-production environments). Add logging statements in route handlers to log significant events, warnings, and errors.
+
+3. **Input Validation:**
+   - **Issue:** Missing input validation can lead to unexpected behavior or security vulnerabilities.
+   - **Solution:** Use `express-validator` to validate and sanitize inputs for each route. Respond with appropriate error messages and status codes if validation fails.
+
+4. **Consistent Response Formats and Status Codes:**
+   - **Issue:** Mixing plain text and JSON responses can lead to inconsistencies.
+   - **Solution:** Standardize all responses to use JSON format with meaningful messages and appropriate HTTP status codes.
+
+5. **Global Error Handling:**
+   - **Issue:** Unhandled errors can crash the application.
+   - **Solution:** Implement a global error handler that logs errors and responds with a standardized error message to clients.
+
+6. **Preventing Duplicate IDs:**
+   - **Issue:** Potential duplicate IDs can lead to data inconsistency.
+   - **Solution:** Use unique identifiers for products or ensure that product names are unique. In this example, product names are used as identifiers.
+
+7. **Logging Best Practices:**
+   - **Info Logs:** Record successful operations like adding, updating, and deleting products.
+   - **Warn Logs:** Capture potential issues such as validation failures or attempts to update/delete non-existent products.
+   - **Error Logs:** Log unexpected errors captured by the global error handler.
+
+8. **Automated Testing:**
+   - **Test Cases:**
+     - **Adding Products:** Test both successful additions and failures due to invalid data.
+     - **Retrieving Products:** Ensure that retrieving products returns the correct data.
+     - **Updating Products:** Test successful updates and handling of non-existent products.
+     - **Deleting Products:** Verify that products can be deleted and handle attempts to delete non-existent products.
+
+9. **Running Tests:**
+   - Execute `npm test` to run the test suite.
+   - **Expected Output:**
+     ```
+       Product Routes API
+         POST /products/add
+           ✓ should add a new product successfully
+           ✓ should fail to add a product with invalid data
+         GET /products
+           ✓ should retrieve all products
+         PUT /products/update/:name
+           ✓ should update an existing product
+           ✓ should return 404 for non-existent product
+         DELETE /products/delete/:name
+           ✓ should delete an existing product
+           ✓ should return 404 for non-existent product
+
+
+       6 passing (XXms)
+     ```
+
+10. **Benefits of Automated Testing:**
+    - **Reliability:** Ensures that all routes and functionalities work as expected.
+    - **Regression Prevention:** Detects when new changes inadvertently break existing functionalities.
+    - **Documentation:** Provides clear examples of how the API behaves under various scenarios.
+    - **Confidence in Deployment:** Automated tests increase confidence that the application is stable and ready for production.
+
+```
+
+---
+
+<!-- .slide: data-transition="fade" -->
+## Performance Optimization and Automated Testing
+
+### Activity 10: Performance Profiling and Optimization
+
+#### Original (Performance-Inefficient) Code
+
+```javascript
+// performanceApp.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Route that performs a CPU-intensive task
+app.get('/compute', (req, res) => {
+    let sum = 0;
+    for (let i = 0; i < 1e8; i++) {
+        sum += i;
+    }
+    res.send(`Sum is ${sum}`);
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Performance App running on port ${port}`);
+});
+```
+
+---
+
+#### Optimized (Solution) Code
+
+```javascript
+// performanceApp.js
+const express = require('express');
+const app = express();
+const port = 3000);
+const { Worker } = require('worker_threads');
+
+// Function to offload CPU-intensive task to a worker
+function runService(workerData) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker('./worker.js', { workerData });
+        worker.on('message', resolve);
+        worker.on('error', reject);
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        });
+    });
+}
+
+// Route that performs a CPU-intensive task using worker
+app.get('/compute', async (req, res) => {
+    try {
+        const sum = await runService({ iterations: 1e8 });
+        res.send(`Sum is ${sum}`);
+    } catch (error) {
+        res.status(500).send('Error computing sum.');
+    }
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Performance App running on port ${port}`);
+});
+```
+
+```javascript
+// worker.js
+const { parentPort, workerData } = require('worker_threads');
+
+function computeSum(iterations) {
+    let sum = 0;
+    for (let i = 0; i < iterations; i++) {
+        sum += i;
+    }
+    return sum;
+}
+
+const result = computeSum(workerData.iterations);
+parentPort.postMessage(result);
+```
+
+----
+
+#### Solution Explanations
+
+1. **Offloading CPU-Intensive Tasks:**
+   - **Issue:** The original `/compute` route performs a synchronous loop with `1e8` iterations, blocking the event loop and preventing the server from handling other requests efficiently.
+   - **Solution:** Use `worker_threads` to offload the CPU-intensive task to a separate thread. This allows the main thread to remain responsive.
+
+2. **Using Worker Threads:**
+   - **`worker.js`:** Contains the logic for the CPU-intensive computation. It receives data from the main thread, performs the computation, and sends the result back.
+   - **`runService` Function:** Manages the creation of worker threads and handles communication between the main thread and workers using Promises for asynchronous handling.
+
+3. **Error Handling:**
+   - Implement `try-catch` blocks in the route handler to manage potential errors during the computation process, ensuring that the server responds appropriately even if the worker encounters an issue.
+
+----
+
+4. **Benefits of Optimization:**
+   - **Responsiveness:** The server remains responsive to other incoming requests while the computation is being processed in a worker thread.
+   - **Scalability:** Allows handling multiple CPU-intensive tasks concurrently without degrading overall performance.
+
+5. **Profiling with Clinic.js:**
+   - **Before Optimization:** Use Clinic.js to profile the original application and observe high CPU usage and blocked event loop.
+   - **After Optimization:** Profile the optimized application to confirm reduced CPU usage and improved responsiveness.
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
