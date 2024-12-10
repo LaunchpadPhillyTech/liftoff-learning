@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ```markdown
+# Express.js with EJS Templates
+## A Beginner's Guide to Server-Side Web Development
+
+### Introduction to Express.js and EJS
+
+When we build websites, we need a way to create dynamic web pages that can change based on different conditions - like showing different content to different users, or displaying data from a database. Express.js and EJS work together to help us do this efficiently. Think of Express as a master chef who prepares ingredients (data), and EJS as the recipe book that tells us how to present those ingredients (HTML templates).
+
+### Setting Up Our Development Environment
+
+Let's start by creating a new project and installing the necessary tools. We'll walk through this step-by-step:
+
+```bash
+# Create a new directory for our project
+mkdir express-ejs-demo
+cd express-ejs-demo
+
+# Initialize a new Node.js project
+npm init -y
+
+# Install Express.js and EJS
+npm install express ejs
+```
+
+Now let's create our basic server file (app.js):
+
+```javascript
+// Import the tools we need
+const express = require('express');
+const app = express();
+
+// Tell Express we'll use EJS as our view engine
+app.set('view engine', 'ejs');
+
+// Set up where our views (templates) will live
+app.set('views', './views');
+
+// Create our first route
+app.get('/', (req, res) => {
+    // Render the 'home' template
+    res.render('home', {
+        pageTitle: 'Welcome to Our Site',
+        message: 'Hello from Express and EJS!'
+    });
+});
+
+// Start our server
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+});
+```
+
+### Understanding EJS Templates
+
+EJS templates are like HTML files with special powers. They can include JavaScript code and display dynamic data. Let's create our first template (views/home.ejs):
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title><&#8203;%= pageTitle %&#8203;></title>
+</head>
+<body>
+    <h1><&#8203;%= message %&#8203;></h1>
+    
+    Let's add some dynamic content
+    <p>The current time is: <&#8203;%= new Date().toLocaleTimeString() %&#8203;></p>
+</body>
+</html>
+```
+
+Let's break down the special EJS tags:
+
+```html
+1. <&#8203;%= %&#8203;>: Outputs a value (with HTML escaping)
+   
+   <h1><&#8203;%= username %&#8203;></h1>
+   
+
+2. <&#8203;%- %&#8203;>: Outputs raw HTML (be careful with this!)
+   
+   <&#8203;%- htmlContent %&#8203;>
+
+3. <&#8203;% %&#8203;>: Runs JavaScript code
+   
+   <&#8203;% if (isLoggedIn) { %&#8203;>
+       <h2>Welcome back!</h2>
+   <&#8203;% } %&#8203;>
+```
+
+### Working with Dynamic Data
+
+Let's create a more practical example - a simple blog post list:
+
+```javascript
+// In app.js
+app.get('/blog', (req, res) => {
+    // Imagine this data comes from a database
+    const posts = [
+        {
+            title: 'Getting Started with Express',
+            date: '2024-01-01',
+            content: 'Express.js makes web development fun!'
+        },
+        {
+            title: 'EJS Templates Explained',
+            date: '2024-01-02',
+            content: 'EJS helps us create dynamic pages easily.'
+        }
+    ];
+
+    res.render('blog', { posts });
+});
+```
+
+And our corresponding template (views/blog.ejs):
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Our Blog</title>
+</head>
+<body>
+    <h1>Latest Blog Posts</h1>
+
+    <&#8203;% posts.forEach(post => { %&#8203;>
+        <article>
+            <h2><&#8203;%= post.title %&#8203;></h2>
+            <time><&#8203;%= new Date(post.date).toLocaleDateString() %&#8203;></time>
+            <p><&#8203;%= post.content %&#8203;></p>
+        </article>
+    <&#8203;% }); %&#8203;>
+</body>
+</html>
+```
+
+### Template Partials
+
+As our site grows, we'll want to reuse certain pieces of HTML. EJS lets us break our templates into reusable parts called partials. Let's create some common elements:
+
+views/partials/header.ejs:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title><&#8203;%= typeof pageTitle !== 'undefined' ? pageTitle : 'Our Site' %&#8203;></title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/blog">Blog</a>
+    </nav>
+```
+
+views/partials/footer.ejs:
+```html
+    <footer>
+        <p>&copy; 2024 Our Express Site</p>
+    </footer>
+</body>
+</html>
+```
+
+Now we can use these partials in our templates:
+
+```html
+<&#8203;%- include('partials/header') %&#8203;>
+
+<main>
+    <h1>Welcome to Our Site</h1>
+    <p>This is our main content.</p>
+</main>
+
+<&#8203;%- include('partials/footer') %&#8203;>
+```
+
+### Handling Forms and User Input
+
+Let's create a simple contact form to demonstrate handling user input:
+
+```javascript
+// In app.js
+// Add middleware to parse form data
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/contact', (req, res) => {
+    res.render('contact', {
+        pageTitle: 'Contact Us',
+        message: null
+    });
+});
+
+app.post('/contact', (req, res) => {
+    const { name, email, message } = req.body;
+    
+    // In a real app, you'd save this to a database
+    console.log('Received message from:', name, email);
+    
+    res.render('contact', {
+        pageTitle: 'Contact Us',
+        message: 'Thanks for your message!'
+    });
+});
+```
+
+views/contact.ejs:
+```html
+<&#8203;%- include('partials/header') %&#8203;>
+
+<h1>Contact Us</h1>
+
+<&#8203;% if (message) { %&#8203;>
+    <div class="alert"><&#8203;%= message %&#8203;></div>
+<&#8203;% } %&#8203;>
+
+<form method="POST" action="/contact">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    
+    <div>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+    </div>
+    
+    <button type="submit">Send Message</button>
+</form>
+
+<&#8203;%- include('partials/footer') %&#8203;>
+```
+
+### Error Handling
+
+It's important to handle errors gracefully. Let's create an error handling system:
+
+```javascript
+// In app.js
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).render('error', {
+        pageTitle: 'Page Not Found',
+        error: {
+            status: 404,
+            message: 'The page you requested could not be found'
+        }
+    });
+});
+
+// General error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error', {
+        pageTitle: 'Error',
+        error: {
+            status: 500,
+            message: 'Something went wrong!'
+        }
+    });
+});
+```
+
+views/error.ejs:
+```html
+<&#8203;%- include('partials/header') %&#8203;>
+
+<div class="error-page">
+    <h1>Error <&#8203;%= error.status %&#8203;></h1>
+    <p><&#8203;%= error.message %&#8203;></p>
+    <a href="/" class="button">Return Home</a>
+</div>
+
+<&#8203;%- include('partials/footer') %&#8203;>
+```
+
+### Project Structure
+
+As your application grows, organizing your code becomes important. Here's a recommended structure:
+
+```
+express-ejs-demo/
+├── app.js
+├── routes/
+│   ├── index.js
+│   ├── blog.js
+│   └── contact.js
+├── views/
+│   ├── partials/
+│   │   ├── header.ejs
+│   │   └── footer.ejs
+│   ├── home.ejs
+│   ├── blog.ejs
+│   ├── contact.ejs
+│   └── error.ejs
+├── public/
+│   ├── styles.css
+│   └── images/
+└── package.json
+```
+
+### Best Practices
+
+<!-- 1. Always escape user input using <&#8203;%= %&#8203;> to prevent XSS attacks -->
+2. Use partials for reusable components
+3. Keep your routes organized in separate files
+4. Handle errors appropriately
+5. Use meaningful variable names in your templates
+6. Comment your code for clarity
+7. Use environment variables for configuration
+
+### Hands-on Exercise
+
+Let's create a simple todo list application that demonstrates all these concepts:
+
+```javascript
+// In app.js
+const todos = [];
+
+app.get('/todos', (req, res) => {
+    res.render('todos', { todos });
+});
+
+app.post('/todos', (req, res) => {
+    const { task } = req.body;
+    todos.push({
+        id: Date.now(),
+        task,
+        completed: false
+    });
+    res.redirect('/todos');
+});
+```
+
+views/todos.ejs:
+```html
+<&#8203;%- include('partials/header') %&#8203;>
+
+<h1>My Todo List</h1>
+
+<form method="POST" action="/todos">
+    <input type="text" name="task" placeholder="New task..." required>
+    <button type="submit">Add Task</button>
+</form>
+
+<ul class="todos">
+    <&#8203;% todos.forEach(todo => { %&#8203;>
+        <li class="<&#8203;%= todo.completed ? 'completed' : '' %&#8203;>">
+            <&#8203;%= todo.task %&#8203;>
+        </li>
+    <&#8203;% }); %&#8203;>
+</ul>
+
+<&#8203;%- include('partials/footer') %&#8203;>
+```
+
+### Assessment Questions
+
+To check understanding, consider these questions:
+
+<!-- 1. What is the difference between <&#8203;%= and <&#8203;%- in EJS? -->
+2. How do you pass data from Express to an EJS template?
+3. Why do we use partials, and how do we include them?
+4. How do you handle form submissions in Express?
+5. What's the purpose of error handling middleware?
+
+### Further Resources
+
+1. Express.js Documentation
+2. EJS Documentation
+3. Node.js Security Best Practices
+4. Template Engine Comparison
+5. Express.js Project Structure Guidelines
+```
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

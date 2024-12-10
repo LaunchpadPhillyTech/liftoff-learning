@@ -8,9 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon reveal-md --theme league --static ./src --watch",
-    "build": "reveal-md --static ./docs",
-    "dev": "nodemon --watch ./src --ext md,css,js --exec \"reveal-md ./src --watch\""
+    "start": "reveal-md --theme league --static ./src --watch",
+    "build": "reveal-md --static ./docs"
   },
   "keywords": [],
   "author": "",
