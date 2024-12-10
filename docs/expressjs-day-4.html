@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Building Web Pages with Express.js and EJS
+## A Guide to Templates and Static Files
+
+---
+
+## Project Setup
+### Getting Everything Ready
+
+First, let's create our project structure:
+
+```bash
+my-website/
+├── public/           # Static files (CSS, images, etc.)
+│   ├── css/
+│   ├── images/
+│   └── js/
+├── views/           # EJS template files
+│   ├── pages/
+│   └── partials/
+├── app.js          # Main application file
+└── package.json    # Project configuration
+```
+
+Note: Think of this structure like organizing a house - we have different rooms (folders) for different purposes. The public folder is like our display cabinet, and views is like our collection of room layouts.
+
+---
+
+## Basic Express Setup
+### Setting Up Our Web Server
+
+```javascript
+// app.js
+import express from 'express';
+import { join } from 'path';
+
+const app = express();
+
+// Tell Express where to find our template files
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
+// Tell Express where to find our public files
+app.use(express.static(join(process.cwd(), 'public')));
+
+// Start our server
+const startServer = async () => {
+    try {
+        await app.listen(3000);
+        console.log('Website running at http://localhost:3000');
+    } catch (error) {
+        console.log('Oops! Server start failed:', error);
+    }
+};
+
+startServer();
+```
+
+Note: This setup is like preparing our house to welcome visitors. We're telling Express where to find our decorations (public files) and room layouts (view templates).
+
+---
+
+## Creating Our First Template
+### Building the Home Page
+
+```html
+<!-- views/pages/home.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to My Website</title>
+    <!-- Link to our CSS file in the public folder -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome, <%= username %>!</h1>
+    </header>
+    
+    <main>
+        <div class="content">
+            <% if (messages.length > 0) { %>
+                <h2>Your Messages:</h2>
+                <ul>
+                    <% messages.forEach(message => { %>
+                        <li><%= message %></li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No messages yet!</p>
+            <% } %>
+        </div>
+    </main>
+    
+    <!-- Link to our JavaScript file -->
+    <script src="/js/main.js"></script>
+</body>
+</html>
+```
+
+Note: EJS templates are like fill-in-the-blank documents. The <%= %> tags are where we insert our dynamic data, and <% %> tags let us use JavaScript logic in our templates.
+
+---
+
+## Adding Style
+### Making Things Pretty
+
+```css
+/* public/css/style.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+header {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.content {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+```
+
+Note: Our CSS file is like the paint and decorations for our website. Because it's in the public folder, the browser can access it directly.
+
+---
+
+## Creating Reusable Parts
+### Template Partials
+
+```html
+<!-- views/partials/header.ejs -->
+<header>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+    </nav>
+</header>
+
+<!-- views/partials/footer.ejs -->
+<footer>
+    <p>&copy; 2024 My Website. All rights reserved.</p>
+</footer>
+
+<!-- views/pages/about.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About Us</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main>
+        <div class="content">
+            <h1>About Us</h1>
+            <p>Welcome to our website!</p>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>
+```
+
+Note: Partials are like building blocks we can reuse across different pages. The header and footer are good examples - we want them to look the same on every page.
+
+---
+
+## Handling Routes
+### Connecting Templates to Express
+
+```javascript
+// Create routes for our pages
+app.get('/', (request, response) => {
+    // Data we want to show on the page
+    const pageData = {
+        username: 'Friend',
+        messages: [
+            'Welcome to our site!',
+            'Hope you enjoy your stay!'
+        ]
+    };
+    
+    // Render the home page with our data
+    response.render('pages/home', pageData);
+});
+
+app.get('/about', (request, response) => {
+    response.render('pages/about', {
+        pageName: 'About Us'
+    });
+});
+
+// Handle 404 errors with a nice page
+app.use((request, response) => {
+    response.status(404).render('pages/error', {
+        message: 'Page not found',
+        error: {
+            status: 404
+        }
+    });
+});
+```
+
+Note: These routes connect user requests to our templates. When someone visits a page, we gather any data they need and use the template to create their personalized view.
+
+---
+
+## Working with Forms
+### Getting User Input
+
+```html
+<!-- views/pages/contact.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main>
+        <div class="content">
+            <h1>Contact Us</h1>
+            
+            <% if (locals.message) { %>
+                <div class="alert">
+                    <%= message %>
+                </div>
+            <% } %>
+            
+            <form action="/contact" method="POST">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" 
+                              name="message" 
+                              required></textarea>
+                </div>
+                
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>
+```
+
+```javascript
+// Handle form submissions
+app.post('/contact', async (request, response) => {
+    try {
+        const { name, email, message } = request.body;
+        
+        // Here you would typically save to a database
+        // For now, we'll just send back a success message
+        
+        response.render('pages/contact', {
+            message: 'Thank you for your message!'
+        });
+    } catch (error) {
+        response.render('pages/contact', {
+            message: 'There was a problem sending your message.'
+        });
+    }
+});
+```
+
+Note: Forms let users interact with our website. The template shows the form, and our Express route handles what happens when they submit it.
+
+---
+
+## Organizing JavaScript
+### Adding Interactivity
+
+```javascript
+// public/js/main.js
+document.addEventListener('DOMContentLoaded', () => {
+    // Add form validation
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            const requiredFields = form.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    event.preventDefault();
+                    field.classList.add('error');
+                } else {
+                    field.classList.remove('error');
+                }
+            });
+        });
+    });
+    
+    // Add some nice effects
+    const links = document.querySelectorAll('nav a');
+    links.forEach(link => {
+        link.addEventListener('mouseover', () => {
+            link.style.transform = 'scale(1.1)';
+        });
+        
+        link.addEventListener('mouseout', () => {
+            link.style.transform = 'scale(1)';
+        });
+    });
+});
+```
+
+Note: The JavaScript file in our public folder adds interactivity to our pages. Because it's in the public folder, browsers can download and run it.
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

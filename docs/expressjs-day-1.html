@@ -17,385 +17,431 @@
       <div class="slides">
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
-            # Express.js with EJS Templates
-## A Beginner's Guide to Server-Side Web Development
+            # Modern Express.js Setup
+## Using ES6+ Standards and Best Practices
 
-### Introduction to Express.js and EJS
+Note: Welcome to our guide on setting up Express.js using modern JavaScript features. We'll explore how ES6+ enhances our Express applications with cleaner syntax, better organization, and more maintainable code.
 
-When we build websites, we need a way to create dynamic web pages that can change based on different conditions - like showing different content to different users, or displaying data from a database. Express.js and EJS work together to help us do this efficiently. Think of Express as a master chef who prepares ingredients (data), and EJS as the recipe book that tells us how to present those ingredients (HTML templates).
+---
 
-### Setting Up Our Development Environment
+## Project Initialization
 
-Let's start by creating a new project and installing the necessary tools. We'll walk through this step-by-step:
+First, let's set up our project with ES6 modules support:
 
-```bash
-# Create a new directory for our project
-mkdir express-ejs-demo
-cd express-ejs-demo
-
-# Initialize a new Node.js project
-npm init -y
-
-# Install Express.js and EJS
-npm install express ejs
+```json
+{
+  "name": "modern-express",
+  "type": "module",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  }
+}
 ```
 
-Now let's create our basic server file (app.js):
+Note: Setting "type": "module" enables ES modules by default, allowing us to use import/export syntax natively. This is a key feature of modern JavaScript development.
+
+---
+
+## Project Structure
+
+Modern project organization using ES modules:
+
+```plaintext
+src/
+├── config/
+│   └── environment.js
+├── controllers/
+│   └── userController.js
+├── middleware/
+│   └── errorHandler.js
+├── models/
+│   └── User.js
+├── routes/
+│   └── userRoutes.js
+├── services/
+│   └── userService.js
+├── utils/
+│   └── asyncHandler.js
+└── server.js
+```
+
+Note: This structure follows the principle of separation of concerns while leveraging ES6 modules for clean imports and exports.
+
+---
+
+## Entry Point
+
+Create `src/server.js`:
 
 ```javascript
-// Import the tools we need
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+
+import { errorHandler } from './middleware/errorHandler.js';
+import { routes } from './routes/index.js';
+import { config } from './config/environment.js';
+
+// ES6 __dirname equivalent
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Express instance
 const app = express();
 
-// Tell Express we'll use EJS as our view engine
-app.set('view engine', 'ejs');
-
-// Set up where our views (templates) will live
-app.set('views', './views');
-
-// Create our first route
-app.get('/', (req, res) => {
-    // Render the 'home' template
-    res.render('home', {
-        pageTitle: 'Welcome to Our Site',
-        message: 'Hello from Express and EJS!'
-    });
-});
-
-// Start our server
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-});
-```
-
-### Understanding EJS Templates
-
-EJS templates are like HTML files with special powers. They can include JavaScript code and display dynamic data. Let's create our first template (views/home.ejs):
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title><%= pageTitle %></title>
-</head>
-<body>
-    <h1><%= message %></h1>
-    
-    <!-- Let's add some dynamic content -->
-    <p>The current time is: <%= new Date().toLocaleTimeString() %></p>
-</body>
-</html>
-```
-
-Let's break down the special EJS tags:
-
-1. `<%= %>`: Outputs a value (with HTML escaping)
-   ```ejs
-   <h1><%= username %></h1>
-   ```
-
-2. `<%- %>`: Outputs raw HTML (be careful with this!)
-   ```ejs
-   <%- htmlContent %>
-   ```
-
-3. `<% %>`: Runs JavaScript code
-   ```ejs
-   <% if (isLoggedIn) { %>
-       <h2>Welcome back!</h2>
-   <% } %>
-   ```
-
-### Working with Dynamic Data
-
-Let's create a more practical example - a simple blog post list:
-
-```javascript
-// In app.js
-app.get('/blog', (req, res) => {
-    // Imagine this data comes from a database
-    const posts = [
-        {
-            title: 'Getting Started with Express',
-            date: '2024-01-01',
-            content: 'Express.js makes web development fun!'
-        },
-        {
-            title: 'EJS Templates Explained',
-            date: '2024-01-02',
-            content: 'EJS helps us create dynamic pages easily.'
-        }
-    ];
-
-    res.render('blog', { posts });
-});
-```
-
-And our corresponding template (views/blog.ejs):
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Our Blog</title>
-</head>
-<body>
-    <h1>Latest Blog Posts</h1>
-
-    <% posts.forEach(post => { %>
-        <article>
-            <h2><%= post.title %></h2>
-            <time><%= new Date(post.date).toLocaleDateString() %></time>
-            <p><%= post.content %></p>
-        </article>
-    <% }); %>
-</body>
-</html>
-```
-
-### Template Partials
-
-As our site grows, we'll want to reuse certain pieces of HTML. EJS lets us break our templates into reusable parts called partials. Let's create some common elements:
-
-views/partials/header.ejs:
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Our Site' %></title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/blog">Blog</a>
-    </nav>
-```
-
-views/partials/footer.ejs:
-```html
-    <footer>
-        <p>&copy; 2024 Our Express Site</p>
-    </footer>
-</body>
-</html>
-```
-
-Now we can use these partials in our templates:
-
-```html
-<%- include('partials/header') %>
-
-<main>
-    <h1>Welcome to Our Site</h1>
-    <p>This is our main content.</p>
-</main>
-
-<%- include('partials/footer') %>
-```
-
-### Handling Forms and User Input
-
-Let's create a simple contact form to demonstrate handling user input:
-
-```javascript
-// In app.js
-// Add middleware to parse form data
+// Security and utility middleware
+app.use(helmet());
+app.use(cors());
+app.use(compression());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/contact', (req, res) => {
-    res.render('contact', {
-        pageTitle: 'Contact Us',
-        message: null
-    });
-});
+// Static files
+app.use(express.static(path.join(__dirname, '../public')));
 
-app.post('/contact', (req, res) => {
-    const { name, email, message } = req.body;
-    
-    // In a real app, you'd save this to a database
-    console.log('Received message from:', name, email);
-    
-    res.render('contact', {
-        pageTitle: 'Contact Us',
-        message: 'Thanks for your message!'
-    });
-});
+// API routes
+app.use('/api', routes);
+
+// Error handling
+app.use(errorHandler);
+
+// Server startup
+const startServer = async () => {
+    try {
+        await app.listen(config.port);
+        console.log(`Server running on port ${config.port}`);
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
 ```
 
-views/contact.ejs:
-```html
-<%- include('partials/header') %>
+Note: Notice how we use ES6+ features like import statements, const/let declarations, arrow functions, and async/await for cleaner, more modern code.
 
-<h1>Contact Us</h1>
+---
 
-<% if (message) { %>
-    <div class="alert"><%= message %></div>
-<% } %>
+## Environment Configuration
 
-<form method="POST" action="/contact">
-    <div>
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-    </div>
-    
-    <div>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-    
-    <div>
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" required></textarea>
-    </div>
-    
-    <button type="submit">Send Message</button>
-</form>
-
-<%- include('partials/footer') %>
-```
-
-### Error Handling
-
-It's important to handle errors gracefully. Let's create an error handling system:
+Create `src/config/environment.js`:
 
 ```javascript
-// In app.js
+import dotenv from 'dotenv';
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).render('error', {
-        pageTitle: 'Page Not Found',
-        error: {
-            status: 404,
-            message: 'The page you requested could not be found'
+dotenv.config();
+
+export const config = {
+    port: process.env.PORT ?? 3000,
+    nodeEnv: process.env.NODE_ENV ?? 'development',
+    database: {
+        url: process.env.DATABASE_URL,
+        options: {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
         }
-    });
-});
+    },
+    jwt: {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '1d'
+    }
+};
 
-// General error handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).render('error', {
-        pageTitle: 'Error',
-        error: {
-            status: 500,
-            message: 'Something went wrong!'
-        }
-    });
-});
+// Environment-specific configurations
+export const isDevelopment = config.nodeEnv === 'development';
+export const isProduction = config.nodeEnv === 'production';
+export const isTest = config.nodeEnv === 'test';
 ```
 
-views/error.ejs:
-```html
-<%- include('partials/header') %>
+Note: We use ES6 features like nullish coalescing (??) and object shorthand notation. The configuration is exported as named exports for better import granularity.
 
-<div class="error-page">
-    <h1>Error <%= error.status %></h1>
-    <p><%= error.message %></p>
-    <a href="/" class="button">Return Home</a>
-</div>
+---
 
-<%- include('partials/footer') %>
-```
+## Route Definition
 
-### Project Structure
-
-As your application grows, organizing your code becomes important. Here's a recommended structure:
-
-```
-express-ejs-demo/
-├── app.js
-├── routes/
-│   ├── index.js
-│   ├── blog.js
-│   └── contact.js
-├── views/
-│   ├── partials/
-│   │   ├── header.ejs
-│   │   └── footer.ejs
-│   ├── home.ejs
-│   ├── blog.ejs
-│   ├── contact.ejs
-│   └── error.ejs
-├── public/
-│   ├── styles.css
-│   └── images/
-└── package.json
-```
-
-### Best Practices
-
-1. Always escape user input using <%= %> to prevent XSS attacks
-2. Use partials for reusable components
-3. Keep your routes organized in separate files
-4. Handle errors appropriately
-5. Use meaningful variable names in your templates
-6. Comment your code for clarity
-7. Use environment variables for configuration
-
-### Hands-on Exercise
-
-Let's create a simple todo list application that demonstrates all these concepts:
+Create `src/routes/userRoutes.js`:
 
 ```javascript
-// In app.js
-const todos = [];
+import { Router } from 'express';
+import { UserController } from '../controllers/userController.js';
+import { authenticate } from '../middleware/auth.js';
 
-app.get('/todos', (req, res) => {
-    res.render('todos', { todos });
-});
+const router = Router();
+const userController = new UserController();
 
-app.post('/todos', (req, res) => {
-    const { task } = req.body;
-    todos.push({
-        id: Date.now(),
-        task,
-        completed: false
+// Route definitions using class methods
+router
+    .route('/')
+    .get(authenticate, userController.getUsers)
+    .post(authenticate, userController.createUser);
+
+router
+    .route('/:id')
+    .get(authenticate, userController.getUser)
+    .patch(authenticate, userController.updateUser)
+    .delete(authenticate, userController.deleteUser);
+
+export { router as userRoutes };
+```
+
+Note: We use ES6 class methods for controllers and chain route definitions for cleaner code organization.
+
+---
+
+## Controller Implementation
+
+Create `src/controllers/userController.js`:
+
+```javascript
+import { UserService } from '../services/userService.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../utils/apiError.js';
+
+export class UserController {
+    constructor() {
+        this.userService = new UserService();
+    }
+
+    getUsers = asyncHandler(async (req, res) => {
+        const { page = 1, limit = 10 } = req.query;
+        const users = await this.userService.findAll({ page, limit });
+        
+        res.json({
+            status: 'success',
+            data: { users }
+        });
     });
-    res.redirect('/todos');
+
+    createUser = asyncHandler(async (req, res) => {
+        const user = await this.userService.create(req.body);
+        
+        res.status(201).json({
+            status: 'success',
+            data: { user }
+        });
+    });
+
+    getUser = asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const user = await this.userService.findById(id);
+        
+        if (!user) {
+            throw new ApiError('User not found', 404);
+        }
+        
+        res.json({
+            status: 'success',
+            data: { user }
+        });
+    });
+}
+```
+
+Note: We use class properties for methods to maintain proper 'this' binding, and the asyncHandler utility for clean error handling.
+
+---
+
+## Service Layer
+
+Create `src/services/userService.js`:
+
+```javascript
+import { User } from '../models/User.js';
+import { ApiError } from '../utils/apiError.js';
+
+export class UserService {
+    async findAll({ page, limit }) {
+        const skip = (page - 1) * limit;
+        
+        const [users, total] = await Promise.all([
+            User.find().skip(skip).limit(limit),
+            User.countDocuments()
+        ]);
+        
+        return {
+            users,
+            pagination: {
+                page,
+                limit,
+                total,
+                pages: Math.ceil(total / limit)
+            }
+        };
+    }
+
+    async create(userData) {
+        const existingUser = await User.findOne({ 
+            email: userData.email 
+        });
+        
+        if (existingUser) {
+            throw new ApiError('Email already in use', 400);
+        }
+        
+        return User.create(userData);
+    }
+
+    async findById(id) {
+        const user = await User.findById(id);
+        
+        if (!user) {
+            throw new ApiError('User not found', 404);
+        }
+        
+        return user;
+    }
+}
+```
+
+Note: Services handle business logic and database interactions. We use async/await for clean asynchronous code and modern error handling.
+
+---
+
+## Error Handling
+
+Create `src/utils/apiError.js` and `src/middleware/errorHandler.js`:
+
+```javascript
+// apiError.js
+export class ApiError extends Error {
+    constructor(message, statusCode = 500, errors = []) {
+        super(message);
+        this.statusCode = statusCode;
+        this.errors = errors;
+        this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
+    }
+}
+
+// errorHandler.js
+export const errorHandler = (err, req, res, next) => {
+    const error = {
+        status: err.status ?? 'error',
+        message: err.message,
+        ...(process.env.NODE_ENV === 'development' && {
+            stack: err.stack,
+            errors: err.errors
+        })
+    };
+
+    res.status(err.statusCode ?? 500).json(error);
+};
+```
+
+Note: We use class inheritance for custom errors and modern object spreading for conditional properties in the error response.
+
+---
+
+## Utility Functions
+
+Create `src/utils/asyncHandler.js`:
+
+```javascript
+export const asyncHandler = (fn) => (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// Usage example:
+const handler = asyncHandler(async (req, res) => {
+    const data = await someAsyncOperation();
+    res.json(data);
 });
 ```
 
-views/todos.ejs:
-```html
-<%- include('partials/header') %>
+Note: This utility uses arrow functions and Promises to create cleaner async route handlers without try/catch blocks.
 
-<h1>My Todo List</h1>
+---
 
-<form method="POST" action="/todos">
-    <input type="text" name="task" placeholder="New task..." required>
-    <button type="submit">Add Task</button>
-</form>
+## Database Model
 
-<ul class="todos">
-    <% todos.forEach(todo => { %>
-        <li class="<%= todo.completed ? 'completed' : '' %>">
-            <%= todo.task %>
-        </li>
-    <% }); %>
-</ul>
+Create `src/models/User.js`:
 
-<%- include('partials/footer') %>
+```javascript
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Name is required'],
+        trim: true
+    },
+    email: {
+        type: String,
+        required: [true, 'Email is required'],
+        unique: true,
+        lowercase: true
+    },
+    password: {
+        type: String,
+        required: [true, 'Password is required'],
+        minlength: 8,
+        select: false
+    }
+}, {
+    timestamps: true,
+    toJSON: {
+        transform: (doc, ret) => {
+            delete ret.password;
+            return ret;
+        }
+    }
+});
+
+// Use arrow function for consistent this binding
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+});
+
+export const User = mongoose.model('User', userSchema);
 ```
 
-### Assessment Questions
+Note: We use ES6 modules for mongoose models and arrow functions for transforms. The schema uses modern features for data handling and security.
 
-To check understanding, consider these questions:
+---
 
-1. What is the difference between <%= and <%- in EJS?
-2. How do you pass data from Express to an EJS template?
-3. Why do we use partials, and how do we include them?
-4. How do you handle form submissions in Express?
-5. What's the purpose of error handling middleware?
+## Testing Setup
 
-### Further Resources
+Create `tests/user.test.js`:
 
-1. Express.js Documentation
-2. EJS Documentation
-3. Node.js Security Best Practices
-4. Template Engine Comparison
-5. Express.js Project Structure Guidelines
+```javascript
+import request from 'supertest';
+import { app } from '../src/server.js';
+import { User } from '../src/models/User.js';
+
+describe('User API', () => {
+    beforeAll(async () => {
+        await User.deleteMany({});
+    });
+
+    it('should create a new user', async () => {
+        const response = await request(app)
+            .post('/api/users')
+            .send({
+                name: 'Test User',
+                email: 'test@example.com',
+                password: 'password123'
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body.data.user).toHaveProperty('name', 'Test User');
+    });
+});
+```
+
+Note: We use ES6 modules in our tests and modern async/await syntax for cleaner test cases.
+
+---
+
           </textarea>
         </section>
       </div>
