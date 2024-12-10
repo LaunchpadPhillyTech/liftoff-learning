@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # FinTech Application Template Requirements
+## A Guide to Express, EJS, and Bootstrap Integration
+
+---
+
+## Template Structure Overview
+
+Your application should implement a modular template structure following the MVC (Model-View-Controller) pattern. We'll organize our views to maximize code reuse and maintain consistency across the application.
+
+---
+
+## Required Views
+
+### Authentication Views
+
+Your application must implement these authentication-related views:
+
+1. Login Page Requirements
+   - Clean, centered login form
+   - Email and password fields with validation
+   - "Remember me" checkbox
+   - Forgot password link
+   - Registration link
+   - Error message display area
+   - Bootstrap form styling
+
+2. Registration Page Requirements
+   - User information form
+   - Password strength indicator
+   - Terms and conditions checkbox
+   - Login link for existing users
+   - Client-side validation
+   - Server-side error display
+
+---
+
+### Core Technologies
+- Node.js & Express.js
+- EJS Template Engine
+- Bootstrap 5
+- Sequelize ORM
+- MySQL/PostgreSQL
+
+### Development Tools
+- Git for version control
+- ESLint for code quality
+- Nodemon for development
+- dotenv for configuration
+
+---
+
+## Project Structure
+
+```bash
+fintech-app/
+├── config/
+│   ├── database.js
+│   └── auth.js
+├── models/
+│   ├── User.js
+│   └── Transaction.js
+├── views/
+│   ├── layouts/
+│   │   └── main.ejs
+│   ├── partials/
+│   │   ├── header.ejs
+│   │   ├── footer.ejs
+│   │   └── sidebar.ejs
+│   └── pages/
+│       ├── dashboard.ejs
+│       ├── transactions.ejs
+│       └── profile.ejs
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── routes/
+│   ├── auth.js
+│   ├── dashboard.js
+│   └── transactions.js
+├── middlewares/
+│   └── auth.js
+└── app.js
+```
+
+---
+
+## Database Models
+
+### User Model
+
+```javascript
+// models/User.js
+import { Model, DataTypes } from 'sequelize';
+
+export class User extends Model {
+  static init(sequelize) {
+    return super.init({
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+      },
+      username: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
+      },
+      email: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+        validate: {
+          isEmail: true
+        }
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      balance: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.00
+      }
+    }, {
+      sequelize,
+      modelName: 'User'
+    });
+  }
+
+  static associate(models) {
+    this.hasMany(models.Transaction, { foreignKey: 'userId' });
+  }
+}
+```
+
+---
+
+### Transaction Model
+
+```javascript
+// models/Transaction.js
+import { Model, DataTypes } from 'sequelize';
+
+export class Transaction extends Model {
+  static init(sequelize) {
+    return super.init({
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+      },
+      type: {
+        type: DataTypes.ENUM('deposit', 'withdrawal', 'transfer'),
+        allowNull: false
+      },
+      amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+          min: 0.01
+        }
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      status: {
+        type: DataTypes.ENUM('pending', 'completed', 'failed'),
+        defaultValue: 'pending'
+      },
+      date: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+      }
+    }, {
+      sequelize,
+      modelName: 'Transaction'
+    });
+  }
+
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: 'userId' });
+  }
+}
+```
+
+---
+
+## Dashboard Requirements
+
+### Main Dashboard View
+
+The dashboard must serve as the central hub of the application, displaying the user account details
+1. The user should be able to widthdraw/deposit funds
+2. see transcation history from withdrawls/deposits 
+3. navigate to transcation history page 
+4. Logout 
+
+---
+
+## Template Integration Requirements
+
+### Layout Structure
+
+```javascript
+// starter code const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
+
+const app = express();
+
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
+app.set('view engine', 'ejs');
+
+// Configure layout middleware
+app.use((req, res, next) => {
+    // Provide common data to all views
+    res.locals.user = req.user;
+    res.locals.currentPath = req.path;
+    next();
+});
+```
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

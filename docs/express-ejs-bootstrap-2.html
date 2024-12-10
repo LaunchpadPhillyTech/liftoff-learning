@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/white.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            
+
+# Building Dynamic Websites
+## Integrating EJS Templates with Bootstrap 5
+
+A comprehensive guide for beginners
+
+---
+
+## What We'll Learn Today
+
+Understanding how to combine two powerful web technologies:
+
+- EJS (Embedded JavaScript) Templates
+- Bootstrap 5 Framework
+
+Note: We'll start with the basics and build up to creating complete, dynamic web pages. Think of EJS as your smart content manager and Bootstrap as your design toolkit.
+
+---
+
+## Why This Combination?
+
+EJS provides:
+- Dynamic content generation
+- Reusable components
+- Server-side rendering
+
+Bootstrap provides:
+- Professional design system
+- Responsive layouts
+- Pre-built components
+
+Note: Together, these technologies let us build professional-looking dynamic websites quickly and efficiently. It's like having a master chef (EJS) working with a fully-equipped kitchen (Bootstrap).
+
+---
+
+## Setting Up Our Project
+
+```javascript
+const express = require('express');
+const app = express();
+
+// Configure EJS
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
+// Serve Bootstrap
+app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
+```
+
+Note: Think of this setup as laying the foundation for our house. We're telling Express to use EJS for creating our pages and making Bootstrap's tools available to use.
+
+---
+
+## Understanding EJS Tags
+
+Three main types of tags:
+
+1. `<%= %>` - Outputs escaped content
+2. `<%- %>` - Outputs raw HTML
+3. `<% %>` - For JavaScript logic
+
+Note: These tags are like different types of containers. The first is like a secure box (safe for user content), the second is like an open container (for trusted HTML), and the third is like a workshop (for running JavaScript).
+
+---
+
+## Our First Template
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+          rel="stylesheet">
+    <title><%= pageTitle %></title>
+</head>
+<body>
+    <div class="container">
+        <h1><%= heading %></h1>
+    </div>
+</body>
+</html>
+```
+
+Note: This is like creating a blueprint for our pages. The <%= %> tags are placeholders that will be filled with real content when the page is created.
+
+---
+
+## Adding Bootstrap Components
+
+Let's create a navigation bar:
+
+```html
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <%= siteName %>
+        </a>
+        
+        <% if (menuItems.length > 0) { %>
+            <ul class="navbar-nav">
+                <% menuItems.forEach(item => { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<%= item.url %>">
+                            <%= item.text %>
+                        </a>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </div>
+</nav>
+```
+
+Note: Here we're combining Bootstrap's styling with EJS's dynamic content generation. The navigation items can change based on the data we pass to the template.
+
+---
+
+## Creating Reusable Partials
+
+Partials are like building blocks. Here's how to create them:
+
+```html
+<!-- views/partials/header.ejs -->
+<header class="bg-light py-3">
+    <div class="container">
+        <h1><%= pageTitle %></h1>
+        <% if (typeof subtitle !== 'undefined') { %>
+            <p class="lead"><%= subtitle %></p>
+        <% } %>
+    </div>
+</header>
+```
+
+Using partials:
+
+```html
+<%- include('partials/header') %>
+```
+
+Note: Think of partials as pre-made components that we can reuse across different pages. They help keep our code DRY (Don't Repeat Yourself).
+
+---
+
+## Dynamic Content with Bootstrap Cards
+
+```html
+<div class="row">
+    <% posts.forEach(post => { %>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%= post.title %>
+                    </h5>
+                    <p class="card-text">
+                        <%= post.excerpt %>
+                    </p>
+                    <a href="/posts/<%= post.id %>" 
+                       class="btn btn-primary">
+                        Read More
+                    </a>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>
+```
+
+Note: Here we're creating a grid of cards that automatically adjusts based on screen size. Each card is populated with data from our posts array.
+
+---
+
+## Forms with Validation
+
+```html
+<div class="card">
+    <div class="card-body">
+        <% if (typeof errors !== 'undefined') { %>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <% errors.forEach(error => { %>
+                        <li><%= error.message %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+        
+        <form method="POST" class="needs-validation" novalidate>
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" 
+                       class="form-control" 
+                       name="name"
+                       value="<%= locals.formData?.name || '' %>"
+                       required>
+            </div>
+            <!-- More form fields... -->
+        </form>
+    </div>
+</div>
+```
+
+Note: We're combining Bootstrap's form styling with EJS's ability to handle dynamic content and error messages. The form can retain user input and display validation errors.
+
+---
+
+## Best Practices
+
+Structure your project well:
+
+```plaintext
+views/
+├── layouts/
+│   └── base.ejs
+├── partials/
+│   ├── header.ejs
+│   ├── footer.ejs
+│   └── nav.ejs
+└── pages/
+    ├── home.ejs
+    ├── about.ejs
+    └── contact.ejs
+```
+
+Note: A well-organized project is easier to maintain and scale. Think of it like organizing your kitchen - everything has its place.
+
+---
+
+## Error Handling
+
+Always handle errors gracefully:
+
+```html
+<% if (typeof error !== 'undefined') { %>
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Error</h4>
+        <p><%= error.message %></p>
+    </div>
+<% } %>
+```
+
+Note: Good error handling improves user experience. It's like having clear warning signs on a road - they help users understand what went wrong and how to fix it.
+
+---
+
+## Responsive Design Tips
+
+Always think mobile-first:
+
+```html
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-4">
+        <!-- Content adapts to screen size -->
+    </div>
+</div>
+```
+
+Note: Bootstrap's grid system helps us create layouts that work well on all devices. Start with mobile layout and expand up to larger screens.
+
+---
+
+## Thank You!
+
+Remember:
+- Start simple
+- Use partials for reusability
+- Think mobile-first
+- Handle errors gracefully
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

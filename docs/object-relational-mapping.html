@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ## ORM with Node.js and Sequelize
+
+- **Objective:** Learn how to use Sequelize (an ORM for Node.js) to interact with a MySQL database.
+- **Prerequisites:**
+  - Basic knowledge of JavaScript, Node.js, and Express.
+  - Familiarity with relational databases and SQL.
+  - MySQL installed and configured.
+- **Key Takeaways:**
+  - Learners should understand the purpose of ORMs, how to define models, perform CRUD operations, and use Sequelize to manage database schema.
+
+---
+
+## Introduction to ORM and Sequelize
+
+---
+
+### **What is ORM?**
+
+**Key Concepts**
+- Definition of ORM: Mapping objects in code to database tables.
+- Benefits of ORMs:
+  - Simplifies database interactions.
+  - Reduces boilerplate SQL code.
+  - Enhances code maintainability and scalability.
+
+---
+
+**Hands-On Tasks:**
+1. Discuss and compare raw SQL queries vs. ORM-based operations.
+2. Set up a basic Node.js application.
+
+----
+
+1. **Basic Node.js Setup:**
+    ```javascript
+    const express = require('express');
+    const app = express();
+    app.use(express.json());
+    app.listen(3000, () => console.log('Server running on port 3000'));
+    ```
+
+----
+
+### **Setting Up Sequelize**
+
+**Key Concepts**
+- Installing and configuring Sequelize with MySQL.
+- Understanding Sequelize's components: models, queries, and associations.
+
+----
+
+**Hands-On Tasks:**
+1. Install Sequelize and the MySQL2 driver:
+    ```bash
+    npm install sequelize mysql2
+    ```
+2. Configure Sequelize:
+    ```javascript
+    const { Sequelize } = require('sequelize');
+
+    const sequelize = new Sequelize('database_name', 'username', 'password', {
+        host: 'localhost',
+        dialect: 'mysql',
+    });
+
+    sequelize.authenticate()
+        .then(() => console.log('Connection established successfully.'))
+        .catch(err => console.error('Unable to connect:', err));
+    ```
+
+**Troubleshooting Tips:**
+- Ensure MySQL is running and the database exists.
+- Check for typos in connection credentials.
+
+----
+
+### **Defining Models and Syncing the Database**
+
+**Key Concepts**
+- Defining models in Sequelize.
+- Syncing models with the database schema.
+
+**Hands-On Tasks:**
+1. Define a `User` model:
+    ```javascript
+    const { DataTypes } = require('sequelize');
+
+    const User = sequelize.define('User', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        email: {
+            type: DataTypes.STRING,
+            unique: true,
+            allowNull: false,
+        },
+    });
+
+    sequelize.sync({ force: true })
+        .then(() => console.log('Database synced successfully.'))
+        .catch(err => console.error('Error syncing database:', err));
+    ```
+
+2. **Mini-Project: Extend the `User` model**
+   - Add an additional field (`role`) with a default value of `'user'`.
+
+---
+
+### Performing CRUD Operations with Sequelize
+
+----
+
+### **Creating Records**
+
+**Key Concepts**
+- Using Sequelize methods like `create()` and `bulkCreate()`.
+
+**Hands-On Tasks:**
+1. Insert a single user into the database:
+    ```javascript
+    User.create({
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+    }).then(user => console.log(user.toJSON()));
+    ```
+2. Insert multiple users with `bulkCreate`:
+    ```javascript
+    User.bulkCreate([
+        { name: 'Jane Doe', email: 'jane.doe@example.com' },
+        { name: 'Alice Smith', email: 'alice.smith@example.com' },
+    ]).then(users => console.log(users));
+    ```
+
+**Challenge:**
+- Add validation to prevent creating users without an email.
+
+---
+
+### **Reading Records**
+
+**Key Concepts**
+- Fetching data with Sequelize methods: `findAll()`, `findOne()`, and `findByPk()`.
+
+**Hands-On Tasks:**
+1. Fetch all users:
+    ```javascript
+    User.findAll().then(users => console.log(users));
+    ```
+2. Fetch a specific user by ID:
+    ```javascript
+    User.findByPk(1).then(user => console.log(user));
+    ```
+
+**Challenge:**
+- Filter users by `role` using the `where` clause.
+
+---
+
+### **Updating Records**
+
+**Key Concepts**
+- Updating records with `update()`.
+
+**Hands-On Tasks:**
+1. Update a user's email:
+    ```javascript
+    User.update(
+        { email: 'updated.email@example.com' },
+        { where: { id: 1 } }
+    ).then(() => console.log('User updated successfully.'));
+    ```
+
+**Challenge:**
+- Write a route to update a user's role dynamically.
+
+---
+
+### **Deleting Records**
+
+**Key Concepts**
+- Removing records with `destroy()`.
+
+**Hands-On Tasks:**
+1. Delete a user by ID:
+    ```javascript
+    User.destroy({
+        where: { id: 1 },
+    }).then(() => console.log('User deleted successfully.'));
+    ```
+
+**Challenge:**
+- Create a route to delete multiple users based on a condition (e.g., `role = 'guest'`).
+
+---
+
+### Advanced Features and Associations
+
+---
+
+### **Adding Model Associations**
+
+**Key Concepts**
+- Relationships in Sequelize (e.g., one-to-one, one-to-many, many-to-many).
+
+**Hands-On Tasks:**
+1. Define a `Post` model and associate it with `User` (one-to-many relationship):
+    ```javascript
+    const Post = sequelize.define('Post', {
+        title: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        content: {
+            type: DataTypes.TEXT,
+        },
+    });
+
+    User.hasMany(Post);
+    Post.belongsTo(User);
+
+    sequelize.sync({ force: true });
+    ```
+
+**Challenge:**
+- Create a route to fetch a user along with their posts.
+
+---
+
+### Independent Project – Blog Platform
+
+**Goal:** Build a **Blog Platform** using Sequelize, focusing on CRUD operations and associations.
+
+---
+
+#### **Deliverables**
+1. **User Management:**
+   - CRUD operations for users.
+2. **Posts Management:**
+   - Allow users to create, edit, and delete posts.
+3. **Advanced Queries:**
+   - Fetch posts with user data (using `include` in Sequelize).
+4. **Validation:**
+   - Add input validation for user email and post title.
+
+---
+
+#### Example Solution for Project Queries
+1. **Fetch All Posts with User Details:**
+    ```javascript
+    Post.findAll({
+        include: User,
+    }).then(posts => console.log(posts));
+    ```
+
+2. **Fetch a User's Posts:**
+    ```javascript
+    User.findByPk(1, {
+        include: Post,
+    }).then(user => console.log(user));
+    ```
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

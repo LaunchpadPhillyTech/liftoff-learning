@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Building a FinTech Dashboard
+## Project Milestone Guide
+
+---
+
+## Project Overview
+
+Our FinTech application will be a transaction management system with:
+- User authentication and authorization
+- Transaction tracking and visualization
+- Responsive dashboard interface
+- Real-time financial analytics 
+
+---
+
+## Technical Requirements
+
+### Core Technologies
+- Node.js & Express.js
+- EJS Template Engine
+- Bootstrap 5
+- Sequelize ORM
+- MySQL/PostgreSQL
+
+### Development Tools
+- Git for version control
+- ESLint for code quality
+- Nodemon for development
+- dotenv for configuration
+
+---
+
+## Project Structure
+
+```bash
+fintech-app/
+├── config/
+│   ├── database.js
+│   └── auth.js
+├── models/
+│   ├── User.js
+│   └── Transaction.js
+├── views/
+│   ├── layouts/
+│   │   └── main.ejs
+│   ├── partials/
+│   │   ├── header.ejs
+│   │   ├── footer.ejs
+│   │   └── sidebar.ejs
+│   └── pages/
+│       ├── dashboard.ejs
+│       ├── transactions.ejs
+│       └── profile.ejs
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── routes/
+│   ├── auth.js
+│   ├── dashboard.js
+│   └── transactions.js
+├── middlewares/
+│   └── auth.js
+└── app.js
+```
+
+---
+
+## Database Models
+
+### User Model
+
+```javascript
+// models/User.js
+import { Model, DataTypes } from 'sequelize';
+
+export class User extends Model {
+  static init(sequelize) {
+    return super.init({
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+      },
+      username: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
+      },
+      email: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+        validate: {
+          isEmail: true
+        }
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      balance: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.00
+      }
+    }, {
+      sequelize,
+      modelName: 'User'
+    });
+  }
+
+  static associate(models) {
+    this.hasMany(models.Transaction, { foreignKey: 'userId' });
+  }
+}
+```
+
+### Transaction Model
+
+```javascript
+// models/Transaction.js
+import { Model, DataTypes } from 'sequelize';
+
+export class Transaction extends Model {
+  static init(sequelize) {
+    return super.init({
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+      },
+      type: {
+        type: DataTypes.ENUM('deposit', 'withdrawal', 'transfer'),
+        allowNull: false
+      },
+      amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+          min: 0.01
+        }
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      status: {
+        type: DataTypes.ENUM('pending', 'completed', 'failed'),
+        defaultValue: 'pending'
+      },
+      date: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+      }
+    }, {
+      sequelize,
+      modelName: 'Transaction'
+    });
+  }
+
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: 'userId' });
+  }
+}
+```
+
+---
+
+## View Templates
+
+### Main Layout
+
+```html
+<!-- views/layouts/main.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTech Dashboard - <%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+          rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../partials/sidebar') %>
+            
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <%- body %>
+            </main>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>
+```
+
+### Dashboard Page
+
+```html
+<!-- views/pages/dashboard.ejs -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                data-bs-target="#newTransactionModal">
+            New Transaction
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Balance Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Balance
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            $<%= user.balance.toFixed(2) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Table -->
+    <div class="col-12 mt-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% transactions.forEach(transaction => { %>
+                                <tr>
+                                    <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                                    <td><%= transaction.type %></td>
+                                    <td>$<%= transaction.amount.toFixed(2) %></td>
+                                    <td>
+                                        <span class="badge bg-<%= transaction.status === 'completed' ? 
+                                                                   'success' : 
+                                                                   (transaction.status === 'failed' ? 
+                                                                   'danger' : 'warning') %>">
+                                            <%= transaction.status %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+---
+
+## Implementation Steps
+
+1. **Project Setup**
+   - Initialize Node.js project
+   - Install dependencies
+   - Configure Express and EJS
+   - Set up database connection
+
+2. **Database Setup**
+   - Create database schemas
+   - Implement models
+   - Set up migrations
+   - Create seed data
+
+3. **Authentication System**
+   - Implement user registration
+   - Create login system
+   - Set up session management
+   - Add authentication middleware
+
+4. **Core Features**
+   - Dashboard implementation
+   - Transaction management
+   - Account balance tracking
+   - Transaction history
+
+5. **Frontend Development**
+   - Implement responsive layouts
+   - Create dashboard components
+   - Add interactive features
+   - Style with Bootstrap
+
+---
+
+## Assessment Criteria
+
+### Technical Requirements (40%)
+- Proper use of Express.js and EJS
+- Correct implementation of Sequelize models
+- Secure authentication system
+- Clean and maintainable code
+
+### Frontend Implementation (30%)
+- Responsive design using Bootstrap
+- User-friendly interface
+- Proper form validation
+- Consistent styling
+
+### Functionality (20%)
+- Working transaction system
+- Accurate balance calculations
+- Proper error handling
+- Data persistence
+
+### Code Quality (10%)
+- Code organization
+- Documentation
+- Best practices
+- Performance considerations
+
+---
+
+## Bonus Features
+
+- Real-time updates using WebSocket
+- Transaction export functionality
+- Advanced analytics dashboard
+- Multi-currency support
+- Two-factor authentication
+
+---
+
+## Submission Guidelines
+
+1. Submit GitHub repository URL
+2. Include README with:
+   - Setup instructions
+   - Feature documentation
+   - API documentation
+   - Testing instructions
+
+3. Deploy application (optional)
+4. Record demo video
+5. Present to class
+
+---
+
+## Resources
+
+- Express.js Documentation
+- Sequelize Documentation
+- Bootstrap 5 Documentation
+- Node.js Best Practices
+- Git Tutorial
+- EJS Template Guide
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

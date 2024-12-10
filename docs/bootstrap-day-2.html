@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/white.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            
+
+# Bootstrap Architecture
+## A Comprehensive Guide for Developers
+
+---
+
+## What We'll Learn Today
+
+Understanding Bootstrap's architecture through the lens of building construction:
+
+- Foundation Layer: The basics that support everything
+- Structural Framework: The grid system
+- Component System: The building blocks
+- Responsive Design: Making it all adapt
+
+Note: We'll use familiar concepts from building construction to help understand how Bootstrap's various parts work together to create modern websites.
+
+---
+
+## The Foundation Layer
+
+Just like a building needs a solid foundation...
+
+```html
+<!-- Before Bootstrap (unstable foundation) -->
+<h1>Different browsers might show this differently</h1>
+
+<!-- With Bootstrap (solid foundation) -->
+<h1 class="h1">This will look consistent across browsers</h1>
+```
+
+Note: Bootstrap's foundation layer, powered by Normalize.css, is like leveling the ground before construction. It ensures all browsers start from the same baseline, just as you wouldn't build a house on uneven ground.
+
+---
+
+## The Grid System
+
+Think of it as the building's framework:
+
+```html
+<div class="container">
+    <!-- The building's outer walls -->
+    <div class="row">
+        <!-- Think of rows like floors -->
+        <div class="col-md-6">
+            <!-- Columns are like rooms -->
+            First Room
+        </div>
+        <div class="col-md-6">
+            Second Room
+        </div>
+    </div>
+</div>
+```
+
+Note: The grid system is like the structural framework of a building. The container is like the exterior walls, rows are like floors, and columns are like rooms. This system provides the structure that everything else attaches to.
+
+---
+
+## Understanding Classes
+
+Bootstrap's class system follows predictable patterns:
+
+```html
+<button class="btn btn-primary btn-lg">
+    Large Primary Button
+</button>
+```
+
+Breaking it down:
+- `btn`: The base class (like a street name)
+- `btn-primary`: The variant (like a house number)
+- `btn-lg`: The size modifier (like floor number)
+
+Note: Think of Bootstrap's classes like a city's addressing system. Just as addresses help locate buildings, Bootstrap's classes help identify and style elements systematically.
+
+---
+
+## Utility Classes
+
+Small, focused tools for specific jobs:
+
+```html
+<div class="mt-4 p-3 bg-light">
+    <!-- mt-4: margin-top level 4 -->
+    <!-- p-3: padding level 3 -->
+    <!-- bg-light: light background -->
+    Content with spacing and background
+</div>
+```
+
+Note: Utility classes are like the small tools in a builder's toolbox. Each has a specific purpose, and they can be combined to achieve the desired result. The naming follows a property-value pattern that's easy to learn and remember.
+
+---
+
+## Responsive Design System
+
+Like a shape-shifting building:
+
+```html
+<div class="col-12 col-md-6 col-lg-4">
+    <!-- Full width on mobile -->
+    <!-- Half width on medium screens -->
+    <!-- One-third on large screens -->
+    Responsive Content
+</div>
+```
+
+Note: Imagine a building that could automatically reorganize its rooms based on the available space. That's what Bootstrap's responsive system does with your content, adapting it to different screen sizes.
+
+---
+
+## Common Components
+
+Building blocks for your website:
+
+```html
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Site Name</a>
+        <button class="navbar-toggler" type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+```
+
+Note: Components are like pre-fabricated rooms that you can customize and combine. They provide ready-to-use functionality while maintaining consistent design patterns.
+
+---
+
+## Avoiding Common Mistakes
+
+❌ Don't nest containers:
+```html
+<div class="container">
+    <div class="container"> <!-- Wrong! -->
+    </div>
+</div>
+```
+
+✅ Do this instead:
+```html
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <!-- Content here -->
+        </div>
+    </div>
+</div>
+```
+
+Note: Just as buildings have structural rules that must be followed, Bootstrap has its own architectural principles. Understanding these helps avoid common pitfalls and creates more maintainable code.
+
+---
+
+## Grid System Best Practices
+
+1. Always keep columns inside rows
+2. Respect the 12-column limit
+3. Use appropriate breakpoints
+
+```html
+<div class="row">
+    <div class="col-md-8">Main content</div>
+    <div class="col-md-4">Sidebar</div>
+</div>
+```
+
+Note: The grid system is powerful but requires attention to detail. Think of it like laying out rooms in a building - everything needs to fit together properly within the available space.
+
+---
+
+## Building a Complete Page
+
+Let's put it all together:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- Navigation content -->
+    </nav>
+
+    <!-- Main content -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Page content -->
+        </div>
+    </div>
+</body>
+</html>
+```
+
+Note: Building a complete page is like constructing a building floor by floor. Start with the foundation (basic HTML), add the structure (grid system), and then fill in the details (components and utilities).
+
+---
+
+## Key Takeaways
+
+1. Start with proper structure
+2. Use the grid system consistently
+3. Leverage existing components
+4. Apply utilities for fine-tuning
+5. Think responsively from the start
+
+Note: Success with Bootstrap comes from understanding its architectural principles and following them consistently. Like any good building, a well-structured Bootstrap site is stable, maintainable, and adaptable.
+
+---
+
+## Questions to Consider
+
+1. How does Bootstrap's grid system support responsive design?
+2. Why do we need containers?
+3. When should you use utilities vs. components?
+
+Note: These questions help reinforce understanding of Bootstrap's core concepts. Encourage students to think about how different parts of Bootstrap work together to create effective websites.
+
+---
+
+## Thank You!
+
+Additional Resources:
+- Bootstrap Documentation
+- Practice Exercises
+- Component Examples
+- Code Templates
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

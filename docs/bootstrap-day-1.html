@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Introduction to Bootstrap 5
+## A Beginner's Guide to Modern Web Development
+
+---
+
+## What We'll Cover Today
+
+- Understanding the purpose of Bootstrap
+- Getting started with Bootstrap 5
+- Building our first responsive webpage
+- Understanding the grid system
+- Working with Bootstrap components
+
+Note:
+Welcome to our introduction to Bootstrap 5! Today's lecture is designed to give you a solid foundation in using Bootstrap to create modern, responsive websites. We'll start with the basics and gradually build up to creating actual webpage components. Feel free to ask questions at any point.
+
+---
+
+## What is Bootstrap?
+
+Think of Bootstrap as your toolbox for web development:
+- A collection of pre-built components
+- Ready-to-use styles
+- JavaScript interactions
+- Responsive design tools
+
+Note:
+Let's start by demystifying Bootstrap. Imagine you're building a house. Instead of creating every tool from scratch, you'd use a toolbox with hammers, screwdrivers, and other essential tools. Bootstrap is like that toolbox for web development. It provides you with ready-made components and styles that you can use to build websites quickly and efficiently.
+
+---
+
+## Why Use Bootstrap?
+
+- 🚀 Rapid development
+- 📱 Mobile-first approach
+- 🎨 Consistent design
+- 🛠 Browser compatibility
+- 👥 Large community
+
+Note:
+Let's talk about why Bootstrap is so popular. When you're starting a new project, Bootstrap gives you a huge head start. Instead of writing all your CSS from scratch, you can use Bootstrap's pre-built components. It's like having a head start in a race - you're not starting from zero, but from a foundation of tested, reliable code.
+
+---
+
+## Setting Up Bootstrap
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+          rel="stylesheet">
+</head>
+<body>
+    <h1>Hello, Bootstrap!</h1>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
+</body>
+</html>
+```
+
+Note:
+Let's look at how to add Bootstrap to your project. This is like setting up your workspace before starting to build. The most important parts are:
+1. The viewport meta tag - this ensures proper rendering on mobile devices
+2. The Bootstrap CSS file - this contains all the styles
+3. The Bootstrap JavaScript bundle - this powers interactive components
+Think of these as the foundation of your house - you need to lay them correctly before you can build anything else.
+
+---
+
+## Understanding Containers
+
+```html
+<!-- Fixed-width container -->
+<div class="container">
+    Your content here
+</div>
+
+<!-- Full-width container -->
+<div class="container-fluid">
+    Edge-to-edge content
+</div>
+```
+
+Note:
+Containers are like the rooms in your house. They help organize your content and provide proper spacing. Bootstrap gives us two main types:
+1. Regular containers (.container) - these have a maximum width at each breakpoint
+2. Fluid containers (.container-fluid) - these stretch the full width of the viewport
+We'll use containers as the foundation for our layout system.
+
+---
+
+## The Grid System
+### Your Layout Foundation
+
+```html
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-4">
+            Column 1
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            Column 2
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            Column 3
+        </div>
+    </div>
+</div>
+```
+
+Note:
+Bootstrap's grid system is like the blueprint of your house. It helps you organize content in a structured way. Here's what you need to know:
+1. The grid is based on 12 columns
+2. You can combine columns to create wider elements
+3. Columns can change width at different screen sizes
+In our example, each column takes:
+- Full width on mobile (col-12)
+- Half width on medium screens (col-md-6)
+- One-third width on large screens (col-lg-4)
+
+---
+
+## Let's Build Something!
+### A Simple Card Component
+
+```html
+<div class="card" style="width: 18rem;">
+    <img src="image.jpg" class="card-img-top" alt="...">
+    <div class="card-body">
+        <h5 class="card-title">Card title</h5>
+        <p class="card-text">
+            Some quick example text to build on the card.
+        </p>
+        <a href="#" class="btn btn-primary">Learn More</a>
+    </div>
+</div>
+```
+
+Note:
+Now let's create something practical - a card component. Cards are like building blocks in Bootstrap. They're versatile components that can display various types of content. Think of them as digital post-it notes that can contain images, text, and buttons.
+
+---
+
+## Making It Responsive
+
+```html
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- Card 1 -->
+        <div class="col">
+            <div class="card">
+                <!-- Card content -->
+            </div>
+        </div>
+        <!-- More cards... -->
+    </div>
+</div>
+```
+
+Note:
+Responsiveness is about making your website look good on all devices. In this example:
+- On mobile: Cards stack vertically (row-cols-1)
+- On medium screens: Two cards per row (row-cols-md-2)
+- On large screens: Three cards per row (row-cols-lg-3)
+The 'g-4' class adds spacing (gutters) between cards.
+
+---
+
+## Bootstrap Utilities
+### Quick Styling Tools
+
+```html
+<div class="mt-4 mb-3 p-3 bg-light rounded">
+    <h2 class="text-primary fw-bold">Hello World</h2>
+    <p class="text-muted">
+        This content has margin, padding, and background!
+    </p>
+</div>
+```
+
+Note:
+Bootstrap utilities are like your quick-fix tools. They help you:
+- Add spacing (margin and padding)
+- Change colors and backgrounds
+- Modify text appearance
+- Add borders and rounded corners
+These classes follow a simple pattern:
+- 'm' for margin, 'p' for padding
+- 't', 'b', 's', 'e' for top, bottom, start, end
+- Numbers 1-5 indicate size
+
+---
+
+## Practice Time!
+### Let's Build a Simple Website
+
+1. Create a navigation bar
+2. Add a hero section
+3. Create a feature grid
+4. Add a footer
+
+Note:
+Now it's your turn to practice! We'll build a simple website together using what we've learned. We'll start with a navigation bar, add a hero section, create a grid of features, and finish with a footer. This hands-on practice will help reinforce the concepts we've covered.
+
+---
+
+## Common Pitfalls to Avoid
+
+- Forgetting to use containers
+- Mismatching row/column structure
+- Overlooking mobile viewports
+- Not using Bootstrap's built-in utilities
+
+Note:
+Let's talk about some common mistakes and how to avoid them:
+1. Always start with a container
+2. Make sure columns are inside rows
+3. Test your site on different screen sizes
+4. Use Bootstrap's utilities instead of writing custom CSS when possible
+
+---
+
+## Resources for Learning More
+
+- Bootstrap Official Documentation
+- Bootstrap Examples
+- Bootstrap Icons
+- Community Forums and Support
+
+Note:
+Learning Bootstrap is a journey. Here are some resources to help you continue learning:
+1. The official documentation is your best friend
+2. Study the examples provided by Bootstrap
+3. Join the Bootstrap community
+4. Practice building different types of websites
+
+---
+
+## Next Steps
+
+- Practice with the grid system
+- Experiment with components
+- Build a portfolio project
+- Share your work with others
+
+Note:
+To really master Bootstrap, you need to practice. Start with small projects and gradually build more complex ones. Remember:
+1. Start with layouts using the grid system
+2. Add components one at a time
+3. Make everything responsive
+4. Share your work and get feedback
+
+---
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

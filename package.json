@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "main": "index.html",
   "dependencies": {
+    "nodemon": "^3.1.7",
     "reveal.js": "^5.1.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "reveal-md --static ./src --watch",
-    "build": "reveal-md --static ./docs"
+    "start": "nodemon reveal-md --theme league --static ./src --watch",
+    "build": "reveal-md --static ./docs",
+    "dev": "nodemon --watch ./src --ext md,css,js --exec \"reveal-md ./src --watch\""
   },
   "keywords": [],
   "author": "",

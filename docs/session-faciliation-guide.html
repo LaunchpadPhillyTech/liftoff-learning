@@ -18,12 +18,16 @@
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
             ### Introduction to Sessions
+By the end of this project, students will:
+
+Understand what user sessions are and why they are essential for web applications.
+Learn how to implement session management using Express-session.
+Persist session data in a MySQL database for scalability and reliability.
+Apply session management to enhance user authentication and state retention.
 
 ---
 
-#### **What are Sessions?**
-
----
+#### What are Sessions?
 
 **Key Concepts**
 - HTTP is stateless; sessions enable applications to maintain user state.
@@ -108,7 +112,7 @@
     ```javascript
     app.use(session({
         secret: 'secret_key',
-        resave: false,
+        resLiftOff Design Planning Meetingave: false,
         saveUninitialized: true,
         cookie: { maxAge: 120000 } // 2 minutes
     }));
