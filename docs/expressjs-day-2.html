@@ -17,219 +17,386 @@
       <div class="slides">
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
-            # Getting Started with Modern Express.js
-## A Beginner's Guide to Web Development
+            # Express.js with EJS Templates
+## A Beginner's Guide to Server-Side Web Development
 
-Note: Welcome to your first steps in modern web development with Express.js! Don't worry if some concepts seem new - we'll break everything down into manageable pieces and learn step by step.
+### Introduction to Express.js and EJS
 
----
+When we build websites, we need a way to create dynamic web pages that can change based on different conditions - like showing different content to different users, or displaying data from a database. Express.js and EJS work together to help us do this efficiently. Think of Express as a master chef who prepares ingredients (data), and EJS as the recipe book that tells us how to present those ingredients (HTML templates).
 
-## What is Express.js?
+### Setting Up Our Development Environment
 
-Think of Express.js as your personal assistant for:
-- Handling web requests (when users visit your website)
-- Organizing your code (keeping things tidy)
-- Making web development easier (doing the heavy lifting)
+Let's start by creating a new project and installing the necessary tools. We'll walk through this step-by-step:
 
-Note: Just like a helpful assistant in a busy office handles incoming mail and organizes tasks, Express.js helps manage everything that happens when people use your website. It's like having a very efficient secretary for your web application!
+```bash
+# Create a new directory for our project
+mkdir express-ejs-demo
+cd express-ejs-demo
 
----
+# Initialize a new Node.js project
+npm init -y
 
-## Hands-on Activity: Your First Express App
-### Let's Start Simple!
+# Install Express.js and EJS
+npm install express ejs
+```
+
+Now let's create our basic server file (app.js):
 
 ```javascript
-// First, we import the tools we need
-import express from 'express';
-
-// Create our app - think of this as opening a new shop
+// Import the tools we need
+const express = require('express');
 const app = express();
 
-// Create our first webpage (route)
-app.get('/', (request, response) => {
-    // When someone visits our site, say hello!
-    response.send('Hello! Welcome to my website!');
-});
+// Tell Express we'll use EJS as our view engine
+app.set('view engine', 'ejs');
 
-// Open our shop for business (start the server)
-const startWebsite = async () => {
-    try {
-        // Listen for visitors on port 3000
-        await app.listen(3000);
-        console.log('Your website is running at http://localhost:3000');
-    } catch (error) {
-        console.log('Oops! Something went wrong:', error);
-    }
-};
+// Set up where our views (templates) will live
+app.set('views', './views');
 
-startWebsite();
-```
-
-Note: Let's break this down - we're creating a simple website that says "hello" to visitors. The 'get' means we're handling when someone visits our page, and 'response.send' is how we send them a message back. Think of it like greeting customers at a store!
-
----
-
-## Understanding Routes
-### Different Pages for Different Things
-
-```javascript
-// Think of routes as different rooms in your house
-app.get('/welcome', (request, response) => {
-    response.send('Welcome to our home page!');
-});
-
-app.get('/about', (request, response) => {
-    response.send('Let me tell you about us...');
-});
-
-// We can send back JSON data too!
-app.get('/users', (request, response) => {
-    const users = [
-        { name: 'Alice', age: 25 },
-        { name: 'Bob', age: 30 }
-    ];
-    response.json(users);
-});
-```
-
-Note: Routes are like different rooms in your website. Just like your house has a kitchen, bedroom, and living room, your website can have different pages for different purposes. Each route handles a different web address (URL).
-
----
-
-## Working with Data
-### Getting Information from Users
-
-```javascript
-// First, tell Express to understand JSON data
-app.use(express.json());
-
-// Create a simple guest book
-const guestBook = [];
-
-// Let visitors sign our guest book
-app.post('/sign-guestbook', (request, response) => {
-    // Get the visitor's message from the request
-    const { name, message } = request.body;
-    
-    // Add a timestamp to their message
-    const entry = {
-        name,
-        message,
-        date: new Date().toLocaleString()
-    };
-    
-    // Save their message
-    guestBook.push(entry);
-    
-    // Thank them for signing!
-    response.json({
-        message: 'Thank you for signing our guest book!',
-        entry
+// Create our first route
+app.get('/', (req, res) => {
+    // Render the 'home' template
+    res.render('home', {
+        pageTitle: 'Welcome to Our Site',
+        message: 'Hello from Express and EJS!'
     });
 });
 
-// Show all guest book entries
-app.get('/guestbook', (request, response) => {
-    response.json(guestBook);
+// Start our server
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
 });
 ```
 
-Note: This is like having a real guest book where visitors can write messages. When someone submits a message (using POST), we save it, and anyone can see all messages (using GET). The date.toLocaleString() gives us a nice readable timestamp.
+### Understanding EJS Templates
 
----
+EJS templates are like HTML files with special powers. They can _include JavaScript code and display dynamic data. Let's create our first template (views/home.ejs):
 
-## Making Things Look Nice
-### Sending HTML Pages
-
-```javascript
-// A simple webpage with some style
-app.get('/pretty', (request, response) => {
-    const html = `
-        <html>
-            <head>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 40px;
-                        background-color: #f0f0f0;
-                    }
-                    .message {
-                        background: white;
-                        padding: 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="message">
-                    <h1>Welcome!</h1>
-                    <p>This is a prettier page with some styling.</p>
-                </div>
-            </body>
-        </html>
-    `;
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= pageTitle %></title>
+</head>
+<body>
+    <h1><%= message %></h1>
     
-    response.send(html);
-});
+    <!-- Let's add some dynamic content -->
+    <p>The current time is: <%= new Date().toLocaleTimeString() %></p>
+</body>
+</html>
 ```
 
-Note: Just like decorating a room makes it more welcoming, we can add HTML and CSS to make our web pages look nice. This example shows how to send a complete webpage with styling.
+Let's break down the special EJS tags:
 
----
+```ejs
+1. <%= %>: Outputs a value (with HTML escaping)
+   
+   <h1><%= username %></h1>
+   
 
-## Handling Errors
-### When Things Go Wrong
+2. <%- %>: Outputs raw HTML (be careful with this!)
+   
+   <%- htmlContent %>
+   ```
+
+3. <% %>: Runs JavaScript code
+   
+   <% if (isLoggedIn) { %>
+       <h2>Welcome back!</h2>
+   <% } %>
+```
+
+### Working with Dynamic Data
+
+Let's create a more practical example - a simple blog post list:
 
 ```javascript
-// Create a helper for error messages
-class FriendlyError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'FriendlyError';
-    }
-}
+// In app.js
+app.get('/blog', (req, res) => {
+    // Imagine this data comes from a database
+    const posts = [
+        {
+            title: 'Getting Started with Express',
+            date: '2024-01-01',
+            content: 'Express.js makes web development fun!'
+        },
+        {
+            title: 'EJS Templates Explained',
+            date: '2024-01-02',
+            content: 'EJS helps us create dynamic pages easily.'
+        }
+    ];
 
-// Add error handling to our guest book
-app.post('/sign-guestbook', (request, response) => {
-    try {
-        // Check if they provided a name
-        if (!request.body.name) {
-            throw new FriendlyError(
-                "Please tell us your name!"
-            );
-        }
-        
-        // Check if they wrote a message
-        if (!request.body.message) {
-            throw new FriendlyError(
-                "Don't forget to write a message!"
-            );
-        }
-        
-        // [Rest of the guest book code...]
-        
-    } catch (error) {
-        // Send a nice error message
-        response.status(400).json({
-            error: error.message
-        });
-    }
+    res.render('blog', { posts });
 });
 ```
 
-Note: Just like we need to handle accidents in real life, we need to handle errors in our code. This example shows how to check for missing information and respond with helpful messages when something goes wrong.
+And our corresponding template (views/blog.ejs):
 
----
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Our Blog</title>
+</head>
+<body>
+    <h1>Latest Blog Posts</h1>
 
-## Need Help?
+    <% posts.forEach(post => { %>
+        <article>
+            <h2><%= post.title %></h2>
+            <time><%= new Date(post.date).toLocaleDateString() %></time>
+            <p><%= post.content %></p>
+        </article>
+    <% }); %>
+</body>
+</html>
+```
 
-- Check the error messages - they're like helpful hints
-- Console.log() is your friend - use it to see what's happening
-- Take it step by step
-- Don't be afraid to experiment!
+### Template Partials
 
-Note: Learning to code is like learning a new language - it takes time and practice. Be patient with yourself and celebrate small victories!
+As our site grows, we'll want to reuse certain pieces of HTML. EJS lets us break our templates into reusable parts called partials. Let's create some common elements:
+
+views/partials/header.ejs:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Our Site' %></title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/blog">Blog</a>
+    </nav>
+```
+
+views/partials/footer.ejs:
+```html
+    <footer>
+        <p>&copy; 2024 Our Express Site</p>
+    </footer>
+</body>
+</html>
+```
+
+Now we can use these partials in our templates:
+
+```html
+<%- _include('partials/header') %>
+
+<main>
+    <h1>Welcome to Our Site</h1>
+    <p>This is our main content.</p>
+</main>
+
+<%- _include('partials/footer') %>
+```
+
+### Handling Forms and User Input
+
+Let's create a simple contact form to demonstrate handling user input:
+
+```javascript
+// In app.js
+// Add middleware to parse form data
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/contact', (req, res) => {
+    res.render('contact', {
+        pageTitle: 'Contact Us',
+        message: null
+    });
+});
+
+app.post('/contact', (req, res) => {
+    const { name, email, message } = req.body;
+    
+    // In a real app, you'd save this to a database
+    console.log('Received message from:', name, email);
+    
+    res.render('contact', {
+        pageTitle: 'Contact Us',
+        message: 'Thanks for your message!'
+    });
+});
+```
+
+views/contact.ejs:
+```html
+<%- _include('partials/header') %>
+
+<h1>Contact Us</h1>
+
+<% if (message) { %>
+    <div class="alert"><%= message %></div>
+<% } %>
+
+<form method="POST" action="/contact">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    
+    <div>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+    </div>
+    
+    <button type="submit">Send Message</button>
+</form>
+
+<%- _include('partials/footer') %>
+```
+
+### Error Handling
+
+It's important to handle errors gracefully. Let's create an error handling system:
+
+```javascript
+// In app.js
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).render('error', {
+        pageTitle: 'Page Not Found',
+        error: {
+            status: 404,
+            message: 'The page you requested could not be found'
+        }
+    });
+});
+
+// General error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error', {
+        pageTitle: 'Error',
+        error: {
+            status: 500,
+            message: 'Something went wrong!'
+        }
+    });
+});
+```
+
+views/error.ejs:
+```html
+<%- _include('partials/header') %>
+
+<div class="error-page">
+    <h1>Error <%= error.status %></h1>
+    <p><%= error.message %></p>
+    <a href="/" class="button">Return Home</a>
+</div>
+
+<%- _include('partials/footer') %>
+```
+
+### Project Structure
+
+As your application grows, organizing your code becomes important. Here's a recommended structure:
+
+```
+express-ejs-demo/
+├── app.js
+├── routes/
+│   ├── index.js
+│   ├── blog.js
+│   └── contact.js
+├── views/
+│   ├── partials/
+│   │   ├── header.ejs
+│   │   └── footer.ejs
+│   ├── home.ejs
+│   ├── blog.ejs
+│   ├── contact.ejs
+│   └── error.ejs
+├── public/
+│   ├── styles.css
+│   └── images/
+└── package.json
+```
+
+### Best Practices
+
+1. Always escape user input using <%= %> to prevent XSS attacks
+2. Use partials for reusable components
+3. Keep your routes organized in separate files
+4. Handle errors appropriately
+5. Use meaningful variable names in your templates
+6. Comment your code for clarity
+7. Use environment variables for configuration
+
+### Hands-on Exercise
+
+Let's create a simple todo list application that demonstrates all these concepts:
+
+```javascript
+// In app.js
+const todos = [];
+
+app.get('/todos', (req, res) => {
+    res.render('todos', { todos });
+});
+
+app.post('/todos', (req, res) => {
+    const { task } = req.body;
+    todos.push({
+        id: Date.now(),
+        task,
+        completed: false
+    });
+    res.redirect('/todos');
+});
+```
+
+views/todos.ejs:
+```html
+<%- _include('partials/header') %>
+
+<h1>My Todo List</h1>
+
+<form method="POST" action="/todos">
+    <input type="text" name="task" placeholder="New task..." required>
+    <button type="submit">Add Task</button>
+</form>
+
+<ul class="todos">
+    <% todos.forEach(todo => { %>
+        <li class="<%= todo.completed ? 'completed' : '' %>">
+            <%= todo.task %>
+        </li>
+    <% }); %>
+</ul>
+
+<%- _include('partials/footer') %>
+```
+
+### Assessment Questions
+
+To check understanding, consider these questions:
+
+1. What is the difference between <%= and <%- in EJS?
+2. How do you pass data from Express to an EJS template?
+3. Why do we use partials, and how do we _include them?
+4. How do you handle form submissions in Express?
+5. What's the purpose of error handling middleware?
+
+### Further Resources
+
+1. Express.js Documentation
+2. EJS Documentation
+3. Node.js Security Best Practices
+4. Template Engine Comparison
+5. Express.js Project Structure Guidelines
           </textarea>
         </section>
       </div>
