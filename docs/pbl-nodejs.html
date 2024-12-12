@@ -8,7 +8,7 @@
     <link rel="shortcut icon" href="./favicon.ico" />
     <link rel="stylesheet" href="./dist/reset.css" />
     <link rel="stylesheet" href="./dist/reveal.css" />
-    <link rel="stylesheet" href="./dist/theme/league.css" id="theme" />
+    <link rel="stylesheet" href="./dist/theme/night.css" id="theme" />
     <link rel="stylesheet" href="./css/highlight/monokai.css" />
 
   </head>
@@ -172,6 +172,7 @@ import taskRoutes from './routes/tasks.js';
 const app = express();
 
 app.set('view engine', 'ejs');
+app.set('view', './view'); // index.esj files should be in this folder 
 app.use(express.json());
 app.use('/', taskRoutes);
 
@@ -252,14 +253,16 @@ displayTask();
           rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Task List</h1>
-        <ul id="task-list">
-            <% tasks.forEach(task => { %>
-                <li><%= task.title %></li>
-            <% }); %>
-        </ul>
-    </div>
+ <h1>Task List</h1>
+    <ul id="task-list" class="list-group">
+      <% tasks.forEach(task => { %>
+      <li class="list-group-item">
+        <%= task.title %>: <%= task.description %>
+        <button class="edit-btn btn btn-primary btn-sm" data-id="<%= task.id %>">Edit</button>
+        <button class="delete-btn btn btn-danger btn-sm" data-id="<%= task.id %>">Delete</button>
+      </li>
+      <% }); %>
+    </ul>
 </body>
 </html>
 ```
@@ -267,7 +270,7 @@ displayTask();
 ---
 
 ## Testing Checklist
-
+- [ ] Add comments to the code that tells us what's going on. 
 - [ ] Database connection
 - [ ] Create new task
 - [ ] Fetch all tasks
