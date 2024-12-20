@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ### Introduction
+
+Welcome to this comprehensive tutorial on implementing authentication in our Task Manager application! By the end of this tutorial, you'll understand how to:
+- Create secure user registration and login systems
+- Implement password hashing
+- Manage user sessions
+- Protect routes from unauthorized access
+- Handle authentication errors gracefully
+
+### Prerequisites
+
+Before we begin, ensure you have:
+- Basic understanding of Node.js and Express
+- Node.js installed (version 18 or higher)
+- npm (Node Package Manager)
+- A running instance of PostgreSQL
+- Basic understanding of async/await in JavaScript
+
+### Part 1: Setting Up Dependencies
+
+First, let's install the necessary packages for our authentication system:
+
+```bash
+npm install bcryptjs express-session connect-flash cookie-parser
+```
+
+Let's understand what each package does:
+- `bcryptjs`: Handles password hashing
+- `express-session`: Manages user sessions
+- `connect-flash`: Provides flash messages for user feedback
+- `cookie-parser`: Parses cookie headers
+
+### Part 2: Creating the User Model
+
+First, create a new file `models/user.js`:
+
+```javascript
+import { DataTypes } from "sequelize";
+import sequelize from "../config/dbconn.js";
+
+const User = sequelize.define('Users', {
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            len: [3, 30] // Username must be between 3 and 30 characters
+        }
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true // Ensures valid email format
+        }
+    },
+    password_hash: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    balance: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.00
+    }
+}, {
+    // Add timestamps for security audit
+    timestamps: true
+});
+
+export default User;
+```
+
+### Part 3: Configuring Session Middleware
+
+Update your `app.js` to include session management:
+
+```javascript
+import session from 'express-session';
+import flash from 'connect-flash';
+import cookieParser from 'cookie-parser';
+
+// Add these before your route declarations
+app.use(cookieParser());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+app.use(flash());
+
+// Add global variables for flash messages
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success');
+    res.locals.error_msg = req.flash('error');
+    next();
+});
+```
+
+### Part 4: Creating Authentication Views
+
+Create `views/login.ejs`:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Login</h2>
+                    </div>
+                    <div class="card-body">
+                        <% if(messages.error) { %>
+                            <div class="alert alert-danger">
+                                <%= messages.error %>
+                            </div>
+                        <% } %>
+                        <form action="/login" method="POST">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </form>
+                        <p class="mt-3">
+                            Don't have an account? <a href="/register">Register here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+Create `views/register.ejs`:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Register</h2>
+                    </div>
+                    <div class="card-body">
+                        <% if(messages.error) { %>
+                            <div class="alert alert-danger">
+                                <%= messages.error %>
+                            </div>
+                        <% } %>
+                        <form action="/register" method="POST">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </form>
+                        <p class="mt-3">
+                            Already have an account? <a href="/login">Login here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+### Part 5: Creating Authentication Middleware
+
+Create a new file `middleware/auth.js`:
+
+```javascript
+export const ensureAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
+    }
+    req.flash('error', 'Please log in to access this resource');
+    res.redirect('/login');
+};
+
+export const ensureGuest = (req, res, next) => {
+    if (!req.session.user) {
+        return next();
+    }
+    res.redirect('/dashboard');
+};
+```
+
+### Part 6: Implementing Authentication Routes
+
+Create `routes/auth.js`:
+
+```javascript
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import User from '../models/user.js';
+import { ensureGuest } from '../middleware/auth.js';
+
+const router = express.Router();
+
+// Display login page
+router.get('/login', ensureGuest, (req, res) => {
+    res.render('login', { messages: req.flash() });
+});
+
+// Handle login
+router.post('/login', ensureGuest, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Find user by email
+        const user = await User.findOne({ 
+            where: { email },
+            attributes: ['id', 'email', 'username', 'password_hash', 'balance'] 
+        });
+
+        // User not found
+        if (!user) {
+            req.flash('error', 'Invalid email or password');
+            return res.redirect('/login');
+        }
+
+        // Check password
+        const validPassword = await bcrypt.compare(password, user.password_hash);
+        if (!validPassword) {
+            req.flash('error', 'Invalid email or password');
+            return res.redirect('/login');
+        }
+
+        // Set user session
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            balance: parseFloat(user.balance || 0)
+        };
+        
+        res.redirect('/dashboard');
+
+    } catch (error) {
+        console.error('Login error:', error);
+        req.flash('error', 'An error occurred during login');
+        res.redirect('/login');
+    }
+});
+
+// Display registration page
+router.get('/register', ensureGuest, (req, res) => {
+    res.render('register', { messages: req.flash() });
+});
+
+// Handle registration
+router.post('/register', ensureGuest, async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+        
+        // Check if user exists
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            req.flash('error', 'Email already registered');
+            return res.redirect('/register');
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Create user
+        const user = await User.create({
+            username,
+            email,
+            password_hash: hashedPassword,
+            balance: 0.00
+        });
+
+        // Set user session
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            balance: parseFloat(user.balance || 0)
+        };
+        
+        res.redirect('/dashboard');
+
+    } catch (error) {
+        console.error('Registration error:', error);
+        req.flash('error', 'An error occurred during registration');
+        res.redirect('/register');
+    }
+});
+
+// Handle logout
+router.get('/logout', (req, res) => {
+    
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Logout error:', err);
+        }
+        res.redirect('/');
+    });
+});
+
+export default router;
+```
+
+### Part 7: Updating the Main Application
+
+Update your `app.js` to include the authentication routes:
+
+```javascript
+import authRoutes from './routes/auth.js';
+
+// Add authentication routes
+app.use('/', authRoutes);
+
+// Protect task routes
+app.use('/tasks', ensureAuthenticated, taskRoutes);
+```
+
+### Part 8: Testing the Authentication System
+
+1. Start your application:
+```bash
+npm start
+```
+
+2. Test the registration flow:
+   - Visit http://localhost:3000/register
+   - Create a new account
+   - Verify you're redirected to the dashboard
+
+3. Test the login flow:
+   - Visit http://localhost:3000/login
+   - Log in with your credentials
+   - Verify you can access protected routes
+
+4. Test the logout flow:
+   - Click the logout button
+   - Verify you're redirected to the home page
+   - Try accessing protected routes
+
+### Security Best Practices
+
+1. Password Security:
+   - We use bcrypt for password hashing
+   - Never store plain-text passwords
+   - Use strong salt rounds (10 is standard)
+
+2. Session Security:
+   - Use secure cookies in production
+   - Implement CSRF protection
+   - Set appropriate session timeouts
+
+3. Input Validation:
+   - Validate all user inputs
+   - Sanitize data before storage
+   - Use parameterized queries
+
+### Common Issues and Troubleshooting
+
+1. Session Not Persisting:
+   - Check session configuration
+   - Verify cookie settings
+   - Ensure secret key is set
+
+2. Password Hash Errors:
+   - Confirm bcrypt is properly installed
+   - Check for encoding issues
+   - Verify password field lengths
+
+3. Flash Messages Not Displaying:
+   - Verify flash middleware is configured
+   - Check template syntax
+   - Ensure messages are being set
+
+### Next Steps
+
+To enhance your authentication system, consider:
+1. Adding password reset functionality
+2. Implementing email verification
+3. Adding OAuth providers (Google, GitHub, etc.)
+4. Implementing rate limiting
+5. Adding two-factor authentication
+
+### Resources for Further Learning
+
+1. Security:
+   - [OWASP Authentication Cheatsheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
+   - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
+
+2. Documentation:
+   - [Express-Session Documentation](https://github.com/expressjs/session)
+   - [Bcrypt Documentation](https://github.com/kelektiv/node.bcrypt.js)
+
+3. Additional Reading:
+   - [Web Authentication Methods Compared](https://developer.mozilla.org/en-US/docs/Web/Security/Authentication)
+   - [JWT vs Sessions](https://jwt.io/introduction)
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

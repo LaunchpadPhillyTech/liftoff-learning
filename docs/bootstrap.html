@@ -6,11 +6,12 @@
 
     <title>reveal-md</title>
     <link rel="shortcut icon" href="./favicon.ico" />
-    <link rel="stylesheet" href="./dist/reset.css" />
-    <link rel="stylesheet" href="./dist/reveal.css" />
-    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
-    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/reset.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/reveal.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link type='text/css' rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
 
+    
   </head>
   <body>
     <div class="reveal">
@@ -159,17 +160,20 @@
       </div>
     </div>
 
-    <script src="./dist/reveal.js"></script>
+    <script type='text/javascript' src="./dist/reveal.js"></script>
 
-    <script src="./mermaid/dist/mermaid.min.js"></script>
+    <script type='text/javascript' src="./mermaid/dist/mermaid.min.js"></script>
 
-    <script src="./plugin/markdown/markdown.js"></script>
-    <script src="./plugin/highlight/highlight.js"></script>
-    <script src="./plugin/zoom/zoom.js"></script>
-    <script src="./plugin/notes/notes.js"></script>
-    <script src="./plugin/math/math.js"></script>
+    <script type='text/javascript' src="./plugin/markdown/markdown.js"></script>
+    <script type='text/javascript' src="./plugin/highlight/highlight.js"></script>
+    <script type='text/javascript' src="./plugin/zoom/zoom.js"></script>
+    <script type='text/javascript' src="./plugin/notes/notes.js"></script>
+    <script type='text/javascript' src="./plugin/math/math.js"></script>
     <script>
-      function extend() {
+      function extend(defaultOptions, revealOptionsStr, queryOptions) { 
+        console.log('defaultOptions', defaultOptions);
+        console.log('queryOptions', queryOptions);
+        console.log('revealOptions', revealOptionsStr);
         var target = {};
         for (var i = 0; i < arguments.length; i++) {
           var source = arguments[i];
@@ -204,7 +208,7 @@
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
-
+      
       var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
     </script>
 
