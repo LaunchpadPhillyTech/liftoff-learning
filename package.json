@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "reveal-md --theme league --static ./src --watch",
+    "start": "reveal-md --theme black --static ./src -w",
     "build": "reveal-md --static ./docs"
   },
   "keywords": [],

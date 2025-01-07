@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link type='text/css' rel="stylesheet" href="./dist/reset.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/reveal.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link type='text/css' rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+    
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ## Hands-on Activity: Boostrap App 
+
+---
+
+# **Creating a Pokemon Website with Bootstrap: A Beginner's Guide**
+
+Welcome to this tutorial! We'll explore how Bootstrap classes are used in the Pokemon website project to create a professional, responsive design. This guide is tailored to help you understand how Bootstrap classes work and why they're important.
+
+---
+
+## **What is Bootstrap?**
+Bootstrap is a free, open-source CSS framework that helps you build modern, responsive websites quickly. It comes with pre-designed classes for layout, styling, and interactivity, so you can avoid writing all the CSS from scratch.
+
+---
+
+## **Understanding the Pokemon Website Structure**
+The website is divided into several sections: a header, navigation bar, main content (with "Home," "Gallery," and "About" sections), and a footer. Let's look at each part and how Bootstrap makes it easy to design them.
+
+---
+
+### **1. Header Section**
+
+**Code:**
+```html
+<header class="bg-primary text-white text-center py-3">
+  <h1>Pokemon World</h1>
+</header>
+```
+
+**Explanation :**
+- **`bg-primary`**: Sets the background color to the primary theme color (usually blue). Bootstrap uses predefined theme colors like `primary`, `secondary`, and `success`.
+- **`text-white`**: Changes the text color to white, making it readable on a blue background.
+- **`text-center`**: Centers the text horizontally.
+- **`py-3`**: Adds vertical padding (spacing) to the top and bottom of the header. The `3` is a shorthand for a specific padding size in Bootstrap.
+
+**Why It Matters:**
+These classes make your header visually appealing without writing any custom CSS. You can focus on content, and Bootstrap handles the style!
+
+---
+
+### **2. Navigation Bar**
+
+**Code:**
+```html
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Pokemon World</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+**Beginner-Friendly Breakdown:**
+- **`navbar navbar-expand-lg`**: This creates a navigation bar that adapts to different screen sizes. At the `lg` (large) screen size or higher, it displays the full menu.
+- **`navbar-dark`**: Adjusts text and component styles for dark backgrounds.
+- **`bg-dark`**: Sets the background to dark gray or black.
+- **`container-fluid`**: Makes the navigation content stretch across the entire width of the screen.
+- **`navbar-toggler`**: Adds a button to toggle (expand/collapse) the menu on smaller screens.
+- **`collapse navbar-collapse`**: Hides or shows the menu items based on screen size.
+- **`nav-item` and `nav-link`**: Style the list items and links inside the navigation bar.
+
+**Why Use Bootstrap for Navigation?**
+Building a responsive navigation bar from scratch is complicated, but Bootstrap simplifies it with these ready-to-use classes.
+
+---
+
+### **3. Home Section**
+
+**Code:**
+```html
+<section id="home" class="text-center bg-light py-5">
+  <h2>Welcome to the Pokemon World!</h2>
+  <p class="lead">Discover your favorite Pokemon and explore their abilities.</p>
+  <button class="btn btn-primary btn-lg">Get Started</button>
+</section>
+```
+
+**Explanation :**
+- **`text-center`**: Centers all text within this section.
+- **`bg-light`**: Adds a light gray background for subtle contrast.
+- **`py-5`**: Creates extra vertical spacing for better readability.
+- **`lead`**: Styles the paragraph as a lead text, making it slightly larger and more prominent.
+- **`btn btn-primary`**: Applies the primary button style (blue background, white text).
+- **`btn-lg`**: Makes the button larger, which is great for user interaction.
+
+**Why It’s Useful:**
+These classes ensure your home section looks clean and inviting without extra effort.
+
+---
+
+### **4. Gallery Section**
+
+**Code:**
+```html
+<section id="gallery" class="my-5">
+  <h3 class="text-center">Pokemon Gallery</h3>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card">
+        <img src="..." class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title">Pikachu</h5>
+          <p class="card-text">Electric-type Pokemon...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+**Beginner-Friendly Breakdown:**
+- **`my-5`**: Adds vertical margins to separate the gallery from other sections.
+- **`text-center`**: Centers the gallery title.
+- **`row`**: Creates a grid layout for organizing content.
+- **`g-4`**: Adds spacing (gutters) between grid items.
+- **`col-md-4`**: Creates columns that span 4/12 of the grid width on medium and larger screens.
+- **`card`**: Adds a box with shadow and padding, styled like a "card."
+- **`card-img-top`**: Styles the image to appear at the top of the card.
+- **`card-title` and `card-text`**: Style the title and text inside the card.
+
+**Why Bootstrap is Handy Here:**
+Using the grid system and cards makes your gallery responsive and professional-looking, even on smaller screens.
+
+---
+
+### **5. Footer**
+
+**Code:**
+```html
+<footer class="text-center py-3 bg-dark text-white">
+  <p>&copy; 2024 Pokemon Website</p>
+</footer>
+```
+
+**Explanation :**
+- **`text-center`**: Centers the footer text.
+- **`py-3`**: Adds spacing above and below the text.
+- **`bg-dark`**: Gives the footer a dark background.
+- **`text-white`**: Ensures the text is readable on the dark background.
+
+**Why It Works:**
+The footer provides a polished ending to your website, and the spacing ensures it doesn’t feel cramped.
+
+---
+
+## **Conclusion**
+
+Bootstrap simplifies web development by offering pre-built classes for design and layout. Here’s a quick summary of what you learned:
+- Use **containers** for spacing and alignment.
+- Leverage **grid systems** (rows and columns) for layout.
+- Style text, backgrounds, and buttons with **utility classes**.
+- Create interactive components like **navbars** with minimal effort.
+
+With these Bootstrap tools, your Pokemon website is responsive, professional, and user-friendly. Happy coding! 🎉
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script type='text/javascript' src="./dist/reveal.js"></script>
+
+    <script type='text/javascript' src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script type='text/javascript' src="./plugin/markdown/markdown.js"></script>
+    <script type='text/javascript' src="./plugin/highlight/highlight.js"></script>
+    <script type='text/javascript' src="./plugin/zoom/zoom.js"></script>
+    <script type='text/javascript' src="./plugin/notes/notes.js"></script>
+    <script type='text/javascript' src="./plugin/math/math.js"></script>
+    <script>
+      function extend(defaultOptions, revealOptionsStr, queryOptions) { 
+        console.log('defaultOptions', defaultOptions);
+        console.log('queryOptions', queryOptions);
+        console.log('revealOptions', revealOptionsStr);
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+      
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link type='text/css' rel="stylesheet" href="./dist/reset.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/reveal.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/theme/night.css" id="theme" />
+    <link type='text/css' rel="stylesheet" href="./css/highlight/monokai.css" />
+
+    
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            
+
+<!-- .slide: data-background="#191919" -->
+# Authentication in Task Manager
+
+## Implementing Authentication in Node.js & Express
+
+*Description:* A tutorial on implementing authentication in a Node.js and Express-based Task Manager application.
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Introduction
+
+* Create secure user registration and login systems
+* Implement password hashing
+* Manage user sessions
+* Protect routes from unauthorized access
+* Handle authentication errors gracefully
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Prerequisites
+
+* Basic understanding of Node.js and Express
+* Node.js installed (version 18 or higher)
+* npm (Node Package Manager)
+* A running instance of PostgreSQL
+* Basic understanding of async/await in JavaScript
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 1: Setting Up Dependencies
+
+```bash
+npm install bcryptjs express-session connect-flash cookie-parser
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+### Package Overview
+
+* **bcryptjs:** Handles password hashing
+* **express-session:** Manages user sessions
+* **connect-flash:** Provides flash messages for user feedback
+* **cookie-parser:** Parses cookie headers
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 2: Creating the User Model
+
+```javascript
+import { DataTypes } from "sequelize";
+import sequelize from "../config/dbconn.js";
+
+const User = sequelize.define('Users', {
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            len: [3, 30]
+        }
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true
+        }
+    },
+    password_hash: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    balance: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.00
+    }
+}, {
+    timestamps: true
+});
+
+export default User;
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 3: Configuring Session Middleware
+
+```javascript
+import session from 'express-session';
+import flash from 'connect-flash';
+import cookieParser from 'cookie-parser';
+
+app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success');
+    res.locals.error_msg = req.flash('error');
+    next();
+});
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 4: Creating Authentication Views
+
+### Login View (views/login.ejs)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    ...
+</body>
+</html>
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 5: Creating Authentication Middleware
+
+```javascript
+export const ensureAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
+    }
+    req.flash('error', 'Please log in to access this resource');
+    res.redirect('/login');
+};
+
+export const ensureGuest = (req, res, next) => {
+    if (!req.session.user) {
+        return next();
+    }
+    res.redirect('/dashboard');
+};
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 6: Implementing Authentication Routes
+
+```javascript
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import User from '../models/user.js';
+import { ensureGuest } from '../middleware/auth.js';
+
+const router = express.Router();
+
+// Add route logic here
+
+export default router;
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Part 7: Updating the Main Application
+
+```javascript
+import authRoutes from './routes/auth.js';
+app.use('/', authRoutes);
+app.use('/tasks', ensureAuthenticated, taskRoutes);
+```
+
+---
+
+<!-- .slide: data-background="#191919" -->
+## Testing and Enhancements
+
+1. Start your app and test each flow
+2. Consider adding advanced features like two-factor authentication
+
+---
+
+<!-- .slide: data-background="#191919" -->
+# Additional Recommendations
+
+* **Add incremental reveals** of bullet points using `fragment` classes in Reveal.js
+* **Use syntax highlighting** for code blocks by enabling the appropriate Reveal.js plugin
+* **Incorporate speaker notes** for presenter guidance using `Notes:` sections
+* **Enhance security** by including rate limiting, account lockouts after multiple failed attempts, and CSRF protection
+* **Improve user experience** with password reset flows and email verification
+
+---
+
+<!-- .slide: data-background="#191919" -->
+# Related Topics
+
+* **Advanced Node.js security practices**
+* **JWT (JSON Web Tokens) for stateless authentication**
+* **OAuth2 and third-party login integration**
+* **Role-based access control (RBAC)**
+* **Access tokens vs. session cookies**
+* **Implementing CSRF protection in Express**
+* **Best practices for securely storing and handling credentials**
+
+---
+
+<!-- .slide: data-background="#191919" -->
+*End of Presentation*
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script type='text/javascript' src="./dist/reveal.js"></script>
+
+    <script type='text/javascript' src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script type='text/javascript' src="./plugin/markdown/markdown.js"></script>
+    <script type='text/javascript' src="./plugin/highlight/highlight.js"></script>
+    <script type='text/javascript' src="./plugin/zoom/zoom.js"></script>
+    <script type='text/javascript' src="./plugin/notes/notes.js"></script>
+    <script type='text/javascript' src="./plugin/math/math.js"></script>
+    <script>
+      function extend(defaultOptions, revealOptionsStr, queryOptions) { 
+        console.log('defaultOptions', defaultOptions);
+        console.log('queryOptions', queryOptions);
+        console.log('revealOptions', revealOptionsStr);
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+      
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

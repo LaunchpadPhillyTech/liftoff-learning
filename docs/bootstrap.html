@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link type='text/css' rel="stylesheet" href="./dist/reset.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/reveal.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link type='text/css' rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+    
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ## Hands-on Activity: Boostrap App 
+
+---
+
+### **1. Header Section**
+```html
+<header class="bg-primary text-white text-center py-3">
+  <h1>Pokemon World</h1>
+</header>
+```
+
+- **`bg-primary`**: Applies the primary color from the Bootstrap theme as the background (usually blue).
+- **`text-white`**: Sets the text color to white for better contrast against the primary background.
+- **`text-center`**: Centers the text horizontally.
+- **`py-3`**: Adds vertical padding (top and bottom) of `1rem` to the header.
+
+---
+
+### **2. Navigation Bar**
+```html
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Pokemon World</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+- **`navbar navbar-expand-lg`**: Creates a responsive navigation bar that expands into a full menu at the `lg` (large) breakpoint.
+- **`navbar-dark`**: Adjusts text and components for a dark background.
+- **`bg-dark`**: Sets the background color to dark gray or black.
+- **`container-fluid`**: Ensures the navbar content spans the full width of the viewport.
+- **`navbar-brand`**: Styles the brand or logo element.
+- **`navbar-toggler`**: Creates a toggle button for collapsing/expanding the navbar.
+- **`collapse navbar-collapse`**: Styles the collapsible menu.
+- **`navbar-nav`**: Styles the navigation list.
+- **`nav-item`**: Styles individual navigation items.
+- **`nav-link`**: Styles the anchor tags as links.
+
+---
+
+### **3. Home Section**
+```html
+<section id="home" class="text-center bg-light py-5">
+  <h2>Welcome to the Pokemon World!</h2>
+  <p class="lead">Discover your favorite Pokemon and explore their abilities.</p>
+  <button class="btn btn-primary btn-lg">Get Started</button>
+</section>
+```
+
+- **`text-center`**: Centers all text within the section.
+- **`bg-light`**: Applies a light background color (off-white).
+- **`py-5`**: Adds larger vertical padding (`3rem`) to the section.
+- **`lead`**: Styles the paragraph as a lead text (slightly larger and lighter font weight).
+- **`btn btn-primary`**: Styles the button with the primary theme color.
+- **`btn-lg`**: Increases the button size.
+
+---
+
+### **4. Gallery Section**
+```html
+<section id="gallery" class="my-5">
+  <h3 class="text-center">Pokemon Gallery</h3>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card">
+        <img src="..." class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title">Pikachu</h5>
+          <p class="card-text">Electric-type Pokemon...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+- **`my-5`**: Adds vertical margins (`3rem` each) to the top and bottom of the section.
+- **`text-center`**: Centers the section heading.
+- **`row`**: Creates a Bootstrap grid row for aligning child elements.
+- **`g-4`**: Adds a gap of `1.5rem` between the grid columns.
+- **`col-md-4`**: Defines a column that spans 4/12 of the grid width on medium and larger screens.
+- **`card`**: Applies the card component style.
+- **`card-img-top`**: Styles the image at the top of the card.
+- **`card-body`**: Styles the body area of the card.
+- **`card-title`**: Styles the card's title.
+- **`card-text`**: Styles the descriptive text in the card.
+
+---
+
+### **5. About Section**
+```html
+<section id="about" class="bg-light py-5">
+  <div class="container">
+    <h3 class="text-center">About Pokemon World</h3>
+    <p>Pokemon World is a fan-made website...</p>
+  </div>
+</section>
+```
+
+- **`bg-light`**: Adds a light background color to the section.
+- **`py-5`**: Adds vertical padding (`3rem`).
+- **`container`**: Ensures the content is centered and aligns with the rest of the layout.
+- **`text-center`**: Centers the heading text.
+
+---
+
+### **6. Footer**
+```html
+<footer class="text-center py-3 bg-dark text-white">
+  <p>&copy; 2024 Pokemon Website</p>
+</footer>
+```
+
+- **`text-center`**: Centers the footer text.
+- **`py-3`**: Adds vertical padding (`1rem`).
+- **`bg-dark`**: Applies a dark background color.
+- **`text-white`**: Ensures the text is visible against the dark background.
+
+---
+
+### **7. Scripts**
+```html
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+```
+
+- **Bootstrap JS Bundle**: Adds interactivity (e.g., navbar toggler functionality) by including Bootstrap's JavaScript components.
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script type='text/javascript' src="./dist/reveal.js"></script>
+
+    <script type='text/javascript' src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script type='text/javascript' src="./plugin/markdown/markdown.js"></script>
+    <script type='text/javascript' src="./plugin/highlight/highlight.js"></script>
+    <script type='text/javascript' src="./plugin/zoom/zoom.js"></script>
+    <script type='text/javascript' src="./plugin/notes/notes.js"></script>
+    <script type='text/javascript' src="./plugin/math/math.js"></script>
+    <script>
+      function extend(defaultOptions, revealOptionsStr, queryOptions) { 
+        console.log('defaultOptions', defaultOptions);
+        console.log('queryOptions', queryOptions);
+        console.log('revealOptions', revealOptionsStr);
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+      
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
