@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Modern Backend Development with Sequelize ORM</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/night.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/monokai.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            
+
+# Modern Backend Development
+## Sequelize ORM & Database Management
+
+---
+
+## Course Overview
+
+* Database Foundations
+* ORM Concepts
+* Sequelize Core Features
+* Best Practices & Advanced Topics
+
+Note: This course is designed for beginners to learn enterprise-grade backend development
+
+---
+
+## Day 1: Database Foundations
+
+* MySQL Basics
+* ORM Introduction
+* Environment Setup
+* First Database Connection
+
+----
+
+### What is an ORM?
+
+Object-Relational Mapping (ORM)
+
+* Translates between Objects and Relations
+* Write JavaScript, Get SQL
+* Handle Complex Database Operations
+
+Note: Think of ORM as a translator between your code and database
+
+----
+
+### Benefits of Using Sequelize
+
+* Type Safety
+* Cross-Database Support
+* Built-in Validation
+* Rich Query Interface
+
+---
+
+## Database Connections
+
+----
+
+### Connection Configuration
+
+```javascript [1-8|9-15|16-20]
+// Store database connection details in a configuration object
+// It's best practice to use environment variables for sensitive data
+const dbConfig = {
+  host: process.env.DB_HOST,      // The database server address
+  username: process.env.DB_USER,  // Database user credentials
+  password: process.env.DB_PASS,  // Database password
+  database: process.env.DB_NAME,  // Name of the database to connect to
+  dialect: 'mysql'                // Specify which database type we're using
+};
+
+// Configure how many connections Sequelize keeps open
+const poolConfig = {
+  max: 5,      // Maximum number of connections in pool
+  min: 0,      // Minimum number of connections in pool
+  acquire: 30000,  // Maximum time (in ms) to acquire a connection
+  idle: 10000      // Maximum time (in ms) a connection can be idle
+};
+
+// Create a new Sequelize instance with our configurations
+// This is our main database connection object
+const sequelize = new Sequelize({
+  ...dbConfig,    // Spread our database configuration
+  pool: poolConfig // Add our connection pool settings
+});
+```
+
+----
+
+### Testing Connections
+
+```javascript [1-7|9-16]
+// Simple function to test if we can connect to the database
+const testConnection = async () => {
+  try {
+    await sequelize.authenticate();  // Try to connect to database
+    console.log('Connected successfully!');  // If successful, log success
+  } catch (error) {
+    console.error('Connection failed:', error);  // If failed, log error
+  }
+};
+
+// More robust connection function that tries multiple times if it fails
+const connectWithRetry = async (maxRetries = 5) => {
+  for (let i = 0; i < maxRetries; i++) {  // Try up to maxRetries times
+    try {
+      await sequelize.authenticate();  // Attempt to connect
+      return true;  // If successful, exit the function
+    } catch (error) {
+      console.log(`Attempt ${i + 1} failed`);  // Log each failed attempt
+      await new Promise(r => setTimeout(r, 5000));  // Wait 5 seconds before retrying
+    }
+  }
+};
+```
+
+---
+
+## Models and Schema
+
+----
+
+### Basic Model Definition
+
+```javascript [1-8|10-17|19-24]
+// Define a User model that represents our 'users' table in the database
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.UUID,                    // Use UUID for unique IDs
+    defaultValue: DataTypes.UUIDV4,          // Automatically generate UUIDs
+    primaryKey: true                         // This is our primary key
+  },
+  username: {
+    type: DataTypes.STRING,                  // Username will be a string
+    allowNull: false,                        // Username is required
+    unique: true,                            // No duplicate usernames allowed
+    validate: {
+      len: [3, 30]                          // Username must be 3-30 characters
+    }
+  },
+  email: {
+    type: DataTypes.STRING,                  // Email will be a string
+    allowNull: false,                        // Email is required
+    validate: {
+      isEmail: true                          // Must be a valid email format
+    }
+  }
+}, {
+  timestamps: true,                          // Add created_at & updated_at fields
+  paranoid: true                            // Enable soft deletes
+});
+```
+
+----
+
+### Model Methods
+
+```javascript [1-5|7-11|13-18]
+// Instance methods are called on individual user objects
+User.prototype.activate = async function() {
+  this.status = 'active';                // Set the user's status to active
+  return this.save();                    // Save changes to database
+};
+
+// Class methods are called on the User model itself
+User.findByUsername = async function(username) {
+  return this.findOne({                 // Find one user that matches
+    where: { username }                 // Look for this username
+  });
+};
+
+// Hooks run automatically at certain points in a model's lifecycle
+User.beforeCreate(async (user) => {
+  if (user.password) {                  // If a password is provided
+    user.password = await bcrypt.hash(user.password, 10);  // Hash it before saving
+  }
+});
+```
+
+---
+
+## Relationships
+
+----
+
+### One-to-One
+
+```javascript [1-5|7-8|10-15]
+// Define a Profile model that will have a one-to-one relationship with User
+const Profile = sequelize.define('Profile', {
+  bio: DataTypes.TEXT,                  // Biography can be long text
+  avatarUrl: DataTypes.STRING,          // URL to user's avatar image
+  userId: DataTypes.UUID                // Foreign key to link to User
+});
+
+// Set up the one-to-one relationship between User and Profile
+User.hasOne(Profile);                   // A User can have one Profile
+Profile.belongsTo(User);                // A Profile belongs to one User
+
+// Function to get a user and their profile information
+const getUserProfile = async (userId) => {
+  return await User.findByPk(userId, {  // Find user by primary key
+    include: Profile                    // Include their profile data
+  });
+};
+```
+
+----
+
+### One-to-Many
+
+```javascript [1-4|6-7|9-16]
+// Define a Post model for user blog posts
+const Post = sequelize.define('Post', {
+  title: DataTypes.STRING,              // Post title
+  content: DataTypes.TEXT               // Post content
+});
+
+// Set up one-to-many relationship: one user can have many posts
+User.hasMany(Post);                     // A User can have many Posts
+Post.belongsTo(User);                   // Each Post belongs to one User
+
+// Function to get all posts for a specific user
+const getUserPosts = async (userId) => {
+  return await Post.findAll({
+    where: { userId },                  // Find all posts for this user
+    include: [{                         // Include user information
+      model: User,
+      attributes: ['username']          // Only include username field
+    }]
+  });
+};
+```
+
+----
+
+### Many-to-Many
+
+```javascript [1-3|5-6|8-15]
+// Define a Tag model for categorizing posts
+const Tag = sequelize.define('Tag', {
+  name: DataTypes.STRING                // Tag name
+});
+
+// Set up many-to-many relationship: posts can have many tags and tags can have many posts
+Post.belongsToMany(Tag, { through: 'PostTags' });  // Create junction table
+Tag.belongsToMany(Post, { through: 'PostTags' });  // Link both ways
+
+// Function to get all posts with their tags
+const getPostsWithTags = async () => {
+  return await Post.findAll({
+    include: [{
+      model: Tag,
+      through: { attributes: [] }       // Don't include junction table data
+    }]
+  });
+};
+```
+
+---
+
+## Migrations
+
+----
+
+### Creating Migrations
+
+```javascript [1-10|12-14]
+// Migrations help us modify the database schema over time
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('Users', {  // Create new table
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
+      }
+      // ... other fields
+    });
+  },
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('Users');     // Undo the changes
+  }
+};
+```
+
+----
+
+### Running Migrations
+
+```bash [1|2|3|4]
+# Generate a new migration file
+npx sequelize-cli migration:generate --name create-users
+# Run all pending migrations
+npx sequelize-cli db:migrate
+# Undo the most recent migration
+npx sequelize-cli db:migrate:undo
+# Undo all migrations
+npx sequelize-cli db:migrate:undo:all
+```
+
+---
+
+## Validation and Hooks
+
+----
+
+### Built-in Validators
+
+```javascript [1-8|10-17|19-26]
+// String validation example
+username: {
+  type: DataTypes.STRING,
+  validate: {
+    len: [3, 30],                // Must be between 3-30 characters
+    isAlphanumeric: true         // Only letters and numbers allowed
+  }
+}
+
+// Number validation example
+price: {
+  type: DataTypes.DECIMAL(10, 2),  // Price with 2 decimal places
+  validate: {
+    min: 0,                        // Price can't be negative
+    isDecimal: true               // Must be a valid decimal
+  }
+}
+
+// Custom validation example
+status: {
+  type: DataTypes.STRING,
+  validate: {
+    isIn: [['active', 'inactive', 'pending']]  // Must be one of these values
+  }
+}
+```
+
+----
+
+### Lifecycle Hooks
+
+```javascript [1-6|8-13|15-20]
+// Runs before a new user is created
+beforeCreate: async (user) => {
+  if (user.password) {                          // If password exists
+    user.password = await bcrypt.hash(user.password, 10);  // Hash it
+  }
+}
+
+// Runs after a new user is created
+afterCreate: async (user) => {
+  await Profile.create({                        // Create empty profile
+    userId: user.id                             // Link it to the user
+  });
+}
+
+// Runs before a user is updated
+beforeUpdate: async (user) => {
+  if (user.changed('email')) {                  // If email was changed
+    await sendEmailVerification(user.email);    // Send verification email
+  }
+}
+```
+
+---
+
+## Transactions
+
+----
+
+### Basic Transaction
+
+```javascript [1-4|6-13|15-19]
+// Start a new database transaction
+const t = await sequelize.transaction({
+  isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE  // Highest isolation
+});
+
+try {
+  // Create a new user within the transaction
+  const user = await User.create({
+    username: 'john',
+    email: 'john@example.com'
+  }, {
+    transaction: t                              // Link to our transaction
+  });
+
+  await t.commit();                            // Save all changes
+  return user;
+} catch (error) {
+  await t.rollback();                          // Undo all changes if error
+  throw error;
+}
+```
+
+----
+
+### Managed Transactions
+
+```javascript [1-8|10-16]
+// Function to create an order with multiple items
+const createOrderWithItems = async (orderData, items) => {
+  return await sequelize.transaction(async (t) => {  // Start transaction
+    // Create the main order
+    const order = await Order.create(orderData, {
+      transaction: t                                 // Link to transaction
+    });
+
+    // Create all order items in bulk
+    const orderItems = await OrderItem.bulkCreate(
+      items.map(item => ({
+        orderId: order.id,                          // Link items to order
+        ...item
+      })), {
+        transaction: t                              // Link to same transaction
+      }
+    );
+
+    return { order, orderItems };                   // Return all created data
+  });  // Transaction auto-commits if successful, rolls back if error
+};
+```
+
+---
+
+## Q&A Session
+
+Questions about today's topics?
+
+Note: Feel free to ask about any concept we covered today
+
+---
+
+## Resources
+
+* [Sequelize Documentation](https://sequelize.org/)
+* [MySQL Documentation](https://dev.mysql.com/doc/)
+* [Node.js Best Practices](https://nodejs.org/en/docs/guides/)
+
+---
+
+## Thank You!
+
+See you tomorrow for more advanced topics!
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
