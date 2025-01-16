@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Sequelize ORM Tutorial
+
+## Database Connections
+
+### Learning Objectives
+By the end of this section, students will be able to:
+- Configure Sequelize database connections
+- Implement connection pooling
+- Handle connection errors effectively
+- Test database connectivity
+
+---
+
+### Introduction
+Database connections are the foundation of any ORM implementation. Understanding how to properly establish and manage these connections is crucial for building robust applications.
+
+---
+
+### Concept Definition
+A database connection represents a communication channel between your Node.js application and your database server. Connection pooling maintains a cache of database connections for reuse, improving performance.
+
+---
+
+### Analogy
+Think of database connections like phone lines at a call center:
+- Each connection is like a dedicated phone line
+- Connection pooling is like having a set number of phone lines ready for use
+- Connection timeouts are like hanging up after being on hold too long
+- Connection retries are like automatically redialing when the line is busy
+
+---
+
+### Best Practices
+
+```javascript
+// Environment variables for database configuration
+const dbConfig = {
+  host: process.env.DB_HOST,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  dialect: 'mysql',
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  logging: false // Disable logging in production
+};
+
+// Initialize Sequelize with proper error handling
+const sequelize = new Sequelize(dbConfig);
+
+// Test connection function
+const testConnection = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection established successfully.');
+  } catch (error) {
+    console.error('Unable to connect:', error);
+    process.exit(1);
+  }
+};
+```
+
+---
+
+### Common Pitfalls and Troubleshooting
+
+1. Connection Timeouts
+```javascript
+// Handle connection timeouts
+const connectWithRetry = async (maxRetries = 5) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      await sequelize.authenticate();
+      return true;
+    } catch (error) {
+      console.log(`Connection attempt ${i + 1} failed:`, error);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+  throw new Error('Max retries reached');
+};
+```
+
+2. Memory Leaks
+```javascript
+// Proper connection cleanup
+process.on('SIGINT', async () => {
+  try {
+    await sequelize.close();
+    console.log('Database connection closed.');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error closing connection:', error);
+    process.exit(1);
+  }
+});
+```
+
+---
+
+## Query Building
+
+### Learning Objectives
+By the end of this section, students will be able to:
+- Construct basic and complex queries using Sequelize
+- Implement parameterized queries securely
+- Optimize query performance
+- Handle query errors appropriately
+
+---
+
+### Real-World Examples
+
+1. Basic CRUD Operations
+```javascript
+// Create a new record
+const createUser = async (userData) => {
+  try {
+    const user = await User.create(userData);
+    return user;
+  } catch (error) {
+    throw new Error(`Error creating user: ${error.message}`);
+  }
+};
+
+// Read with conditions
+const findActiveUsers = async () => {
+  try {
+    const users = await User.findAll({
+      where: {
+        status: 'active',
+        lastLoginDate: {
+          [Op.gte]: new Date(Date.now() - 24 * 60 * 60 * 1000)
+        }
+      }
+    });
+    return users;
+  } catch (error) {
+    throw new Error(`Error finding users: ${error.message}`);
+  }
+};
+
+// Update with validation
+const updateUserEmail = async (userId, newEmail) => {
+  try {
+    const [updatedRows] = await User.update(
+      { email: newEmail },
+      {
+        where: { id: userId },
+        returning: true,
+        validate: true
+      }
+    );
+    return updatedRows;
+  } catch (error) {
+    throw new Error(`Error updating user: ${error.message}`);
+  }
+};
+```
+
+---
+
+## Models and Schema
+<!-- .slide: data-auto-animate -->
+
+### Learning Objectives
+By the end of this section, students will be able to:
+- Define Sequelize models with proper data types
+- Implement model validations and constraints
+- Create associations between models
+- Use model instances effectively
+
+----
+
+<!-- .slide: data-auto-animate -->
+### Introduction to Models
+
+Models are the essence of Sequelize, representing tables in your database as JavaScript classes.
+
+----
+
+### Model Definition
+<!-- .slide: data-auto-animate -->
+
+```javascript
+// Basic model definition
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      len: [3, 30]
+    }
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true
+    }
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive'),
+    defaultValue: 'active'
+  }
+}, {
+  timestamps: true,
+  paranoid: true // Enables soft deletes
+});
+```
+
+----
+
+### Model Methods
+<!-- .slide: data-auto-animate -->
+
+```javascript
+// Instance methods
+User.prototype.activate = async function() {
+  this.status = 'active';
+  return this.save();
+};
+
+// Class methods
+User.findByUsername = async function(username) {
+  return this.findOne({ where: { username } });
+};
+
+// Hooks
+User.beforeCreate(async (user) => {
+  if (user.password) {
+    user.password = await bcrypt.hash(user.password, 10);
+  }
+});
+```
+
+---
+
+## Relationships
+<!-- .slide: data-auto-animate -->
+
+### Learning Objectives
+- Implement different types of associations
+- Understand eager and lazy loading
+- Master relationship querying
+- Handle circular dependencies
+
+----
+
+### One-to-One Relationships
+<!-- .slide: data-auto-animate -->
+
+```javascript
+// User profile example
+const Profile = sequelize.define('Profile', {
+  bio: DataTypes.TEXT,
+  avatarUrl: DataTypes.STRING
+});
+
+// Establishing one-to-one relationship
+User.hasOne(Profile);
+Profile.belongsTo(User);
+
+// Usage example
+const getUserWithProfile = async (userId) => {
+  const user = await User.findByPk(userId, {
+    include: Profile
+  });
+  return user;
+};
+```
+
+----
+
+### One-to-Many Relationships
+<!-- .slide: data-auto-animate -->
+
+```javascript
+// Posts example
+const Post = sequelize.define('Post', {
+  title: DataTypes.STRING,
+  content: DataTypes.TEXT
+});
+
+// Establishing one-to-many relationship
+User.hasMany(Post);
+Post.belongsTo(User);
+
+// Usage with eager loading
+const getUserPosts = async (userId) => {
+  const posts = await Post.findAll({
+    where: { userId },
+    include: [{
+      model: User,
+      attributes: ['username', 'email']
+    }]
+  });
+  return posts;
+};
+```
+
+----
+
+### Many-to-Many Relationships
+<!-- .slide: data-auto-animate -->
+
+```javascript
+// Tags example
+const Tag = sequelize.define('Tag', {
+  name: DataTypes.STRING
+});
+
+// Junction table is automatically created
+Post.belongsToMany(Tag, { through: 'PostTags' });
+Tag.belongsToMany(Post, { through: 'PostTags' });
+
+// Usage example
+const getPostsWithTags = async () => {
+  const posts = await Post.findAll({
+    include: [{
+      model: Tag,
+      through: { attributes: [] } // Exclude junction table
+    }]
+  });
+  return posts;
+};
+```
+
+---
+
+## Migrations and Versioning
+<!-- .slide: data-auto-animate -->
+
+### Learning Objectives
+- Create and manage database migrations
+- Implement schema changes safely
+- Handle migration errors
+- Use seeders for test data
+
+----
+
+### Creating Migrations
+<!-- .slide: data-auto-animate -->
+
+```javascript
+// migration file: YYYYMMDDHHMMSS-create-users.js
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('Users', {
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
+      },
+      username: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('Users');
+  }
+};
+```
+
+----
+
+### Running Migrations
+<!-- .slide: data-auto-animate -->
+
+```bash
+# Create migration
+npx sequelize-cli migration:generate --name add-email-to-users
+
+# Run migrations
+npx sequelize-cli db:migrate
+
+# Undo last migration
+npx sequelize-cli db:migrate:undo
+
+# Undo all migrations
+npx sequelize-cli db:migrate:undo:all
+```
+
+---
+
+## Data Validation and Hooks
+<!-- .slide: data-auto-animate -->
+
+### Learning Objectives
+- Implement model validations
+- Use lifecycle hooks effectively
+- Handle validation errors
+- Create custom validators
+
+----
+
+### Built-in Validators
+<!-- .slide: data-auto-animate -->
+
+```javascript
+const Product = sequelize.define('Product', {
+  name: {
+    type: DataTypes.STRING,
+    validate: {
+      len: [3, 50],
+      notEmpty: true
+    }
+  },
+  price: {
+    type: DataTypes.DECIMAL(10, 2),
+    validate: {
+      min: 0,
+      isDecimal: true
+    }
+  },
+  sku: {
+    type: DataTypes.STRING,
+    validate: {
+      isAlphanumeric: true,
+      len: [8, 12]
+    }
+  }
+});
+```
+
+----
+
+### Custom Validators
+<!-- .slide: data-auto-animate -->
+
+```javascript
+const Order = sequelize.define('Order', {
+  status: {
+    type: DataTypes.STRING,
+    validate: {
+      isValidStatus(value) {
+        const validStatuses = ['pending', 'processing', 'shipped', 'delivered'];
+        if (!validStatuses.includes(value)) {
+          throw new Error('Invalid order status');
+        }
+      }
+    }
+  },
+  shippingAddress: {
+    type: DataTypes.STRING,
+    validate: {
+      async isValidAddress(value) {
+        // Example of async validation
+        const isValid = await validateAddressService(value);
+        if (!isValid) {
+          throw new Error('Invalid shipping address');
+        }
+      }
+    }
+  }
+});
+```
+
+----
+
+### Lifecycle Hooks
+<!-- .slide: data-auto-animate -->
+
+```javascript
+const User = sequelize.define('User', {
+  // ... model attributes
+}, {
+  hooks: {
+    beforeCreate: async (user) => {
+      // Hash password before saving
+      if (user.password) {
+        user.password = await bcrypt.hash(user.password, 10);
+      }
+    },
+    beforeUpdate: async (user) => {
+      // Update lastModified timestamp
+      user.lastModified = new Date();
+    },
+    afterCreate: async (user) => {
+      // Send welcome email
+      await sendWelcomeEmail(user.email);
+    }
+  }
+});
+```
+
+---
+
+## Transactions
+<!-- .slide: data-auto-animate -->
+
+### Learning Objectives
+- Implement ACID transactions
+- Handle transaction rollbacks
+- Use managed transactions
+- Understand transaction isolation levels
+
+----
+
+### Basic Transactions
+<!-- .slide: data-auto-animate -->
+
+```javascript
+const transferFunds = async (fromAccountId, toAccountId, amount) => {
+  const t = await sequelize.transaction();
+
+  try {
+    // Debit first account
+    await Account.decrement('balance', {
+      by: amount,
+      where: { id: fromAccountId },
+      transaction: t
+    });
+
+    // Credit second account
+    await Account.increment('balance', {
+      by: amount,
+      where: { id: toAccountId },
+      transaction: t
+    });
+
+    await t.commit();
+    return true;
+  } catch (error) {
+    await t.rollback();
+    throw new Error(`Transfer failed: ${error.message}`);
+  }
+};
+```
+
+----
+
+### Managed Transactions
+<!-- .slide: data-auto-animate -->
+
+```javascript
+const createOrderWithItems = async (orderData, items) => {
+  const result = await sequelize.transaction(async (t) => {
+    // Create order
+    const order = await Order.create(orderData, { transaction: t });
+
+    // Create order items
+    const orderItems = await OrderItem.bulkCreate(
+      items.map(item => ({
+        orderId: order.id,
+        ...item
+      })),
+      { transaction: t }
+    );
+
+    return { order, orderItems };
+  });
+
+  return result;
+};
+```
+
+----
+
+### Transaction Isolation Levels
+<!-- .slide: data-auto-animate -->
+
+```javascript
+const complexOperation = async () => {
+  const t = await sequelize.transaction({
+    isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE
+  });
+
+  try {
+    // Perform operations that require highest isolation
+    const result = await Model.findOne({
+      where: { id: 1 },
+      lock: t.LOCK.UPDATE,
+      transaction: t
+    });
+
+    await result.update({ status: 'processed' }, { transaction: t });
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+```
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
