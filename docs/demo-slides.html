@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link type='text/css' rel="stylesheet" href="./dist/reset.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/reveal.css" />
+    <link type='text/css' rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link type='text/css' rel="stylesheet" href="./css/highlight/base16/black.css" />
+
+    
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            <!-- Title Slide -->
+# University of Greenfield
+## Registration System Modernization
+Digital Transformation Project
+
+Problem Statement:
+The University of Greenfield's current paper-based student registration system is causing data fragmentation, workflow inefficiencies, and security vulnerabilities across their operations. 
+The manual processes for student records, course enrollments, and fee payments are leading to delays, inconsistencies, and poor reporting capabilities. 
+
+A centralized electronic database solution with a modern user interface is needed to streamline registration processes, ensure data consistency, enhance security, and enable data-driven decision making for student success initiatives.
+
+---
+
+<!-- LP.6.1 Section -->
+## Problem Understanding (LP.6.1)
+
+###  Stakeholders: Students, Administrative Staff & Faculty
+
+----
+
+Students: 
+Extended wait times for registration confirmation
+Difficulty in tracking application status
+Need for physical presence to submit documents
+Risk of lost paperwork and repeated submissions
+
+----
+
+Administrative Staff
+High workload during peak registration periods
+Manual cross-referencing of multiple documents
+Time spent on data entry instead of student support
+Challenges in maintaining accurate records
+
+----
+
+Faculty
+Delayed access to class rosters
+Difficulty in tracking prerequisites
+Limited visibility into student academic history
+Manual verification of enrollment status
+
+---
+
+### Current Challenges
+
+* Paper-based systems
+* Manual processes
+* Data fragmentation
+* Inefficient workflows
+
+---
+
+<!-- LP.6.2 Section -->
+## Solution Planning (LP.6.2)
+
+### Other Solutions 
+
+#### Solution A: Commercial Student Information System (SIS)
+Features
+- Pre-built registration modules
+- Standard reporting capabilities
+- Integration with common education platforms
+- Mobile access for students
+- Limitations
+- High licensing costs
+- Limited customization options
+- Complex implementation process
+- Dependency on vendor for updates
+
+----
+
+#### Solution B: Custom-Built Legacy System
+Features
+- Tailored to specific institution needs
+- Direct control over functionality
+- No ongoing licensing fees
+- Local hosting and control
+- Limitations
+- High development and maintenance costs
+- Limited scalability
+- Difficult to integrate with modern tools
+- Requires specialized IT staff
+
+----
+
+##### Solution C: Cloud-Based Student Portal
+Features
+- Accessible from any device
+- Automatic updates and maintenance
+- Built-in analytics
+- Scalable infrastructure
+- Limitations
+- Internet dependency
+- Data privacy concerns
+- Limited offline capabilities
+- Recurring subscription costs
+
+---
+
+## Proposed Solution: Digital Registration System
+### Solution Overview
+System Architecture
+The proposed solution follows a three-tier architecture that ensures scalability, security, and maintainability:
+
+Registration Workflow
+The new system implements a streamlined registration process:
+
+- The proposed solution combines the best aspects of existing systems while addressing their limitations through a hybrid approach that emphasizes:
+- Modular architecture for customization and scalability
+- Progressive web application for online/offline access
+- Blockchain-based document verification
+- AI-powered workflow automation
+- Real-time analytics and reporting
+
+----
+
+Key Differentiators
+- Adaptive Interface: Contextual user experience based on role and needs
+- Smart Workflows: Automated routing and approval processes
+- Data Integration: Unified view of student information across departments
+- Predictive Analytics: Early warning system for registration issues
+- Secure Architecture: Multi-layer security with encryption at rest and in transit
+
+### Project Timeline
+
+* Week 1: Define the problem & Plan the solution
+* Week 2: Implementation and Documenttation
+
+---
+
+### Core Components
+
+* Student Management
+* Course Registration
+* Fee Processing
+* Report Generation
+
+---
+
+<!-- Closing Slide -->
+## Next Steps
+
+Contact: project.team@greenfield.edu
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script type='text/javascript' src="./dist/reveal.js"></script>
+
+    <script type='text/javascript' src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script type='text/javascript' src="./plugin/markdown/markdown.js"></script>
+    <script type='text/javascript' src="./plugin/highlight/highlight.js"></script>
+    <script type='text/javascript' src="./plugin/zoom/zoom.js"></script>
+    <script type='text/javascript' src="./plugin/notes/notes.js"></script>
+    <script type='text/javascript' src="./plugin/math/math.js"></script>
+    <script>
+      function extend(defaultOptions, revealOptionsStr, queryOptions) { 
+        console.log('defaultOptions', defaultOptions);
+        console.log('queryOptions', queryOptions);
+        console.log('revealOptions', revealOptionsStr);
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+      
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
