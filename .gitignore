@@ -2,7 +2,6 @@
 node_modules/
 src/
 .notes/
-.lessons/
 
 
 # files 
@@ -11,3 +10,5 @@ src/
 .global-prompt.md
 favicon.ico
 *.md
+.lesson*
+
