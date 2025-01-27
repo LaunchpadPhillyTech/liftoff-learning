@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # React Props & Components
+## Building Blocks of Modern Web Apps 🧱
+
+---
+
+## What are Components? 🤔
+
+- Reusable pieces of UI
+- Self-contained code
+- Like LEGO blocks for your app
+
+Note:
+Think of components as building blocks that you can combine to create complex applications.
+
+---
+
+## Types of Components
+
+```jsx
+// Function Component (Modern)
+function Greeting({ name }) {
+  return <h1>Hello, {name}!</h1>;
+}
+
+// Arrow Function Component
+const Greeting = ({ name }) => {
+  return <h1>Hello, {name}!</h1>;
+}
+```
+
+Note:
+We'll focus on function components as they're the modern approach.
+
+---
+
+## Props: Component Communication 📨
+
+Props are like:
+- Arguments for functions
+- Settings for components
+- A way to customize components
+
+---
+
+## Using Props
+
+```jsx
+// Parent Component
+function App() {
+  return (
+    <UserCard 
+      name="Alex"
+      age={25}
+      isAdmin={true}
+    />
+  );
+}
+
+// Child Component
+function UserCard({ name, age, isAdmin }) {
+  return (
+    <div>
+      <h2>{name}</h2>
+      <p>Age: {age}</p>
+      {isAdmin && <span>Admin</span>}
+    </div>
+  );
+}
+```
+
+---
+
+## 🚫 Props are Read-Only!
+
+```jsx
+// ❌ Wrong: Modifying props
+function Counter({ count }) {
+  count = count + 1; // Error!
+  return <div>{count}</div>;
+}
+
+// ✅ Correct: Use state instead
+function Counter({ initialCount }) {
+  const [count, setCount] = useState(initialCount);
+  return <div>{count}</div>;
+}
+```
+
+---
+
+## Component Composition 🏗️
+
+```jsx
+function App() {
+  return (
+    <div>
+      <Header>
+        <Navigation />
+        <SearchBar />
+      </Header>
+      <MainContent />
+      <Footer />
+    </div>
+  );
+}
+```
+
+Note:
+Components can be nested to create complex UIs.
+
+---
+
+## Best Practices ✨
+
+1. Keep components focused
+2. Use meaningful names
+3. Props should be immutable
+4. Document your components
+
+---
+
+## Real World Example: Product Card
+
+```jsx
+function ProductCard({ product }) {
+  const { name, price, image, inStock } = product;
+  
+  return (
+    <div className="product-card">
+      <img src={image} alt={name} />
+      <h3>{name}</h3>
+      <p>${price}</p>
+      <button disabled={!inStock}>
+        {inStock ? 'Add to Cart' : 'Out of Stock'}
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## Exercise Time! 💪
+
+Create a `Button` component that:
+- Accepts `type`, `size`, and `onClick` props
+- Supports different styles
+- Shows loading state
+
+---
+
+## Thank You! 🎉
+
+Questions?
+
+Contact: instructor@example.com
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
