@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Liftoff Learning</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Introduction to JSX 
+## Your First Step into React
+---
+
+# What is JSX? 🤔
+
+* JavaScript XML - A syntax extension for JavaScript
+* Lets you write HTML-like code in your JavaScript
+* Makes React components more intuitive to write
+
+Note: JSX is the foundation of writing React components. Think of it as a special way to write HTML inside your JavaScript code.
+
+---
+
+## The Blueprint Analogy 🏗️
+
+Just like a blueprint combines:
+* Visual layout (walls, rooms)
+* Technical specs (measurements)
+
+JSX combines:
+* HTML-like structure
+* JavaScript logic
+
+Note: This analogy helps us understand how JSX brings together structure and functionality.
+
+---
+
+## JSX vs Regular JavaScript
+
+```jsx
+// With JSX
+const element = (
+  <h1 className="greeting">
+    Hello, World!
+  </h1>
+);
+
+// Without JSX (Pure JavaScript)
+const element = React.createElement(
+  'h1',
+  {className: 'greeting'},
+  'Hello, World!'
+);
+```
+
+Note: See how much cleaner and more readable JSX is compared to plain JavaScript?
+
+---
+
+## JSX Rules 📋
+
+1. Every tag must be closed
+2. Return a single parent element
+3. Use camelCase for attributes
+4. Use `className` instead of `class`
+
+Note: These rules help maintain consistency and avoid common errors.
+
+---
+
+## JSX Rule Examples
+
+```jsx
+// ✅ Correct
+<div className="container">
+  <img src="pic.jpg" alt="profile" />
+  <p>Hello!</p>
+</div>
+
+// ❌ Wrong
+<div class="container">
+  <img src="pic.jpg">
+  <p>Hello!
+</div>
+```
+
+Note: Pay attention to self-closing tags and proper attribute naming.
+
+---
+
+## Embedding JavaScript in JSX 🔨
+
+Use curly braces `{}` to include JavaScript expressions
+
+```jsx
+const name = "Alex";
+const element = (
+  <h1>
+    Hello, {name}!
+    {2 + 2}
+  </h1>
+);
+```
+
+Note: The curly braces are like windows into JavaScript land.
+
+---
+
+## Real-World Example: User Profile
+
+```jsx
+const UserProfile = () => {
+  const user = {
+    name: "Alex",
+    age: 20,
+    isOnline: true
+  };
+
+  return (
+    <div className="profile">
+      <h2>{user.name}</h2>
+      <p>Age: {user.age}</p>
+      {user.isOnline && 
+        <span className="online">🟢 Online</span>
+      }
+    </div>
+  );
+};
+```
+
+Note: This shows how JSX combines data and presentation.
+
+---
+
+## Common Pitfalls ⚠️
+
+1. Forgetting to return a single parent element
+2. Using `class` instead of `className`
+3. Not closing tags properly
+4. Trying to use `if/else` directly in JSX
+
+Note: These are the most common mistakes beginners make with JSX.
+
+---
+
+## Solutions 💡
+
+```jsx
+// ✅ Single parent element
+<div>
+  <h1>Title</h1>
+  <p>Content</p>
+</div>
+
+// ✅ Fragment when you don't want extra div
+<>
+  <h1>Title</h1>
+  <p>Content</p>
+</>
+```
+
+Note: Fragments are a great way to group elements without adding extra nodes to the DOM.
+
+---
+
+## Best Practices 🌟
+
+1. Keep components small and focused
+2. Use meaningful component names
+3. Format your JSX for readability
+4. Comment complex logic
+
+Note: Following these practices will make your code more maintainable.
+
+---
+
+## Let's Practice! 💪
+
+Try converting this HTML to JSX:
+
+```html
+<div class="card">
+  <img src="avatar.jpg">
+  <h3>User Profile</h3>
+  <p class="text-main">Welcome back!</p>
+</div>
+```
+
+Note: Take a moment to think about what needs to change.
+
+---
+
+## Solution ✨
+
+```jsx
+const Card = () => {
+  return (
+    <div className="card">
+      <img src="avatar.jpg" alt="user avatar" />
+      <h3>User Profile</h3>
+      <p className="text-main">Welcome back!</p>
+    </div>
+  );
+};
+```
+
+Note: Notice the changes: className, self-closing img tag, and component structure.
+
+---
+
+## Summary 📝
+
+* JSX combines HTML-like syntax with JavaScript
+* Must follow specific rules (closing tags, camelCase)
+* Use `{}` for JavaScript expressions
+* Always return a single parent element
+* Keep it clean and readable
+
+Note: These are the key points to remember about JSX.
+
+---
+
+## Resources 📚
+
+* [React Documentation](https://reactjs.org/docs/introducing-jsx.html)
+* [Create React App](https://create-react-app.dev)
+* Practice on [CodeSandbox](https://codesandbox.io)
+
+Note: Use these resources to continue learning about JSX.
+
+---
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

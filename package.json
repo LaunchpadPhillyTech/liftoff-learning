@@ -4,6 +4,7 @@
   "main": "index.html",
   "dependencies": {
     "nodemon": "^3.1.7",
+    "reveal-md": "^6.1.4",
     "reveal.js": "^5.1.0"
   },
   "scripts": {
@@ -14,8 +15,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "reveal-md": "^6.1.4"
-  }
+  "description": ""
 }
