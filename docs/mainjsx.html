@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            Okay, here's a breakdown of when you might modify `main.jsx` or index.html in a React project, along with commented code for PostList.jsx:
+
+**When to Modify `main.jsx` (or `index.js` in older projects):**
+
+*   **Root Component Rendering:**  `main.jsx` is the entry point where your main React component (`App`) is rendered into the DOM. You'd modify this if you need to change *how* your app is initially rendered.
+*   **Wrapping with Providers:** If you're using Context API, Redux, React Router, or other libraries that require wrapping your entire app with a provider, you'd do it in `main.jsx`.  This ensures the context or store is available to all components.
+*   **Global Configuration:**  Rarely, you might put some global configuration or initialization code here, but it's generally better to keep this file clean and focused on rendering the app.
+
+**When to Modify index.html:**
+
+*   **Title and Meta Tags:**  You'll definitely modify index.html to set the `<title>` of your page, add meta descriptions for SEO, and configure other meta tags.
+*   **Adding CSS Links/Scripts:**  While you usually import CSS in your React components, you *might* add direct `<link>` tags to CSS files in index.html.  Similarly, you could add `<script>` tags for external JavaScript libraries (though using `npm` and importing is generally preferred).
+*   **Favicon:**  You'll add a `<link>` tag to specify the favicon for your site in index.html.
+*   **Modifying the Root Element:** The index.html file contains the `<div id="root"></div>` element, which is where React will inject your application. You should generally *not* modify the `id` of this element, but you might add classes or other attributes if needed for styling.
+
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

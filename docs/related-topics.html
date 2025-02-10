@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            
+**Current Dependencies (package.json):**
+
+*   **Core:**
+    *   `react`:  The fundamental React library.
+    *   `react-dom`:  For rendering React components in the browser.
+*   **Build/Tooling:**
+    *   `vite`:  A fast build tool and development server.
+    *   `@vitejs/plugin-react`: Vite plugin for React support.
+    *   `autoprefixer`:  Adds vendor prefixes to CSS for browser compatibility.
+    *   `postcss`:  A tool for transforming CSS.
+    *   `tailwindcss`:  A utility-first CSS framework.
+    *   `@tailwindcss/forms`: A Tailwind CSS plugin for styling form elements.
+    *   `eslint`: For linting
+*   **Deployment:**
+    *   `gh-pages`:  For deploying to GitHub Pages.
+
+**Missing Dependencies (related-topics.md):**
+
+*   **State Management:**
+    *   Redux
+*   **Routing:**
+    *   React Router
+*   **Form Handling:**
+    *   React Hook Form
+*   **HTTP Requests:**
+    *   Axios
+    *   Fetch API
+*   **Styling:**
+    *   Material UI
+    *   Styled Components
+*   **Testing:**
+    *   Jest
+    *   React Testing Library
+    *   Cypress
+*   **Code Quality:**
+    *   Prettier
+    *   Husky
+    *   Lint-Staged
+
+**Suggestions for a More Complete Learning Experience:**
+
+1.  **State Management (Redux or Context API):**
+
+    *   **Why:** As the application grows, managing state efficiently becomes crucial. Redux is a popular choice for centralized state management, while Context API (with `useReducer`) offers a simpler alternative for smaller projects.
+    *   **Action:** Consider adding Redux or Context API to manage the social feed's data (posts, comments, etc.).
+
+2.  **Routing (React Router):**
+
+    *   **Why:** If you want to add multiple pages or views to your application (e.g., a user profile page, a settings page), you'll need a routing library.
+    *   **Action:** Integrate React Router to enable navigation between different parts of the application.
+
+3.  **Form Handling (React Hook Form):**
+
+    *   **Why:** React Hook Form simplifies form management, validation, and submission.
+    *   **Action:** Replace the basic form handling in `CreatePost.jsx` and `Post.jsx` with React Hook Form.
+
+4.  **HTTP Requests (Axios or Fetch API):**
+
+    *   **Why:** To fetch data from an API (e.g., to load initial posts, submit new posts, or handle comments), you'll need a library for making HTTP requests.
+    *   **Action:** Use Axios or the Fetch API to connect your application to a backend API.
+
+5.  **Testing (Jest and React Testing Library):**
+
+    *   **Why:** Testing ensures that your code works as expected and helps prevent regressions.
+    *   **Action:** Set up Jest and React Testing Library and write unit tests for your components.
+
+6.  **Code Quality Tools (Prettier, ESLint, Husky, Lint-Staged):**
+
+    *   **Why:** These tools help maintain consistent code style and catch errors early.
+    *   **Action:** Configure Prettier for code formatting, ESLint for linting, and Husky/Lint-Staged to run these tools automatically before commits.
+
+**Example: Adding Redux**
+
+1.  **Install Redux:**
+
+    ```bash
+    npm install redux react-redux
+    ```
+
+2.  **Create Redux Store:**
+
+    ```javascript
+    // filepath: src/store.js
+    import { configureStore } from '@reduxjs/toolkit';
+    import postReducer from './features/posts/postsSlice';
+
+    const store = configureStore({
+      reducer: {
+        posts: postReducer,
+      },
+    });
+
+    export default store;
+    ```
+
+3.  **Wrap App with Provider:**
+
+    ```jsx
+    // filepath: src/main.jsx
+    import React from 'react';
+    import ReactDOM from 'react-dom/client';
+    import App from './App.jsx';
+    import './index.css';
+    import { Provider } from 'react-redux';
+    import store from './store';
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <React.StrictMode>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </React.StrictMode>
+    );
+    ```
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

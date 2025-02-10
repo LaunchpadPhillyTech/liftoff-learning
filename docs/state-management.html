@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # React State Management Options
+
+1. Local State (useState)
+
+_Definition: Local state is state that is managed within a single component using the `useState` hook._
+
+_Analogy: Think of local state as a notepad that a single person uses to jot down quick notes._
+
+```js
+// Best for simple component-level state
+const Counter = () => {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+};
+```
+
+2. Context API
+
+_Definition: The Context API allows you to share state across multiple components without passing props down manually at every level._
+
+_Analogy: Imagine a public bulletin board where everyone in the community can read and post messages._
+
+```js
+// Good for sharing state between components without prop drilling
+const ThemeContext = React.createContext();
+
+const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light');
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </Context.Provider>
+  );
+};
+```
+
+3. Redux
+
+_Definition: Redux is a state management library for JavaScript apps, providing a centralized store for all application state._
+
+_Analogy: Think of Redux as a central filing cabinet where all important documents are stored and can be accessed by anyone in the office._
+
+```js
+# Installation
+npm install @reduxjs/toolkit react-redux
+
+// For complex applications with global state
+import { createSlice, configureStore } from '@reduxjs/toolkit';
+
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    increment: state => { state.value += 1 }
+  }
+});
+```
+
+4. Zustand
+
+_Definition: Zustand is a small, fast, and scalable state management solution that simplifies global state management._
+
+_Analogy: Imagine Zustand as a personal assistant who keeps track of your tasks and reminders, making sure you stay organized._
+
+```js
+# Installation
+npm install zustand
+
+// Simpler alternative to Redux
+import create from 'zustand';
+
+const useStore = create(set => ({
+  count: 0,
+  increment: () => set(state => ({ count: state.count + 1 }))
+}));
+```
+## When to Use What:
+
+_Local State: Small components, simple interactions_
+
+_Context: Theme, user authentication, language settings_
+
+_Redux: Large applications, complex state logic_
+
+_Zustand: Medium-sized apps needing simple global state_
+
+## Best Practices:
+
+_Start with local state and Context API_
+
+_Add Redux/Zustand only when needed_
+
+_Keep state as close to components as possible_
+
+_Document state management decisions_
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

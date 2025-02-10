@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # React Concepts Cheat Sheet
+
+## Foundational Concepts
+> The core building blocks that form the basis of React applications.
+
+### 1. Components
+> Reusable, self-contained pieces of UI that can accept inputs (props) and return React elements.
+
+```jsx
+// Functional Component - Modern way to write React components using functions
+const Greeting = ({ name }) => {
+  return <h1>Hello, {name}!</h1>;
+};
+
+// Class Component - Traditional way to write components using ES6 classes
+class Welcome extends React.Component {
+  render() {
+    return <h1>Welcome, {this.props.name}</h1>;
+  }
+}
+```
+
+### 2. JSX
+> A syntax extension for JavaScript that allows you to write HTML-like code in your JavaScript files.
+
+```jsx
+const element = (
+  <div className="container">
+    <h1>{user.name}</h1>
+    {isLoggedIn && <AdminPanel />}
+    {status === 'loading' ? <Spinner /> : <Content />}
+  </div>
+);
+```
+
+### 3. Props
+> Read-only properties passed to components that allow component configuration and data flow.
+
+```jsx
+const UserCard = ({ name, email, role = 'user' }) => (
+  <div className="card">
+    <h2>{name}</h2>
+    <p>{email}</p>
+    <span>{role}</span>
+  </div>
+);
+```
+
+### 4. State
+> Internal component data that can change over time and triggers re-rendering when modified.
+
+```jsx
+const Counter = () => {
+  const [count, setCount] = useState(0);
+  return (
+    <>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </>
+  );
+};
+```
+
+### 5. Side Effects
+> Operations that interact with the outside world, such as data fetching, subscriptions, or DOM mutations.
+
+```jsx
+const DataFetcher = () => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch('api/data');
+      const result = await response.json();
+      setData(result);
+    };
+    fetchData();
+    return () => {
+      // Cleanup
+    };
+  }, []);
+
+  return <div>{data && <DisplayData data={data} />}</div>;
+};
+```
+
+## Core Skills
+> Essential patterns and practices for building scalable React applications.
+
+### 1. Component Architecture
+> Pattern of splitting components into presentational and container components for better separation of concerns.
+
+```jsx
+// Smart Component (Container) - Handles logic and state
+const UserContainer = () => {
+  const [user, setUser] = useState(null);
+  // Logic here
+
+  return <UserProfile user={user} onUpdate={handleUpdate} />;
+};
+
+// Presentational Component - Handles rendering and styling
+const UserProfile = ({ user, onUpdate }) => (
+  <div className="profile">
+    <h2>{user.name}</h2>
+    <button onClick={onUpdate}>Update</button>
+  </div>
+);
+```
+
+### 2. State Management
+```jsx
+// Context
+const ThemeContext = React.createContext('light');
+
+const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light');
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+```
+
+### 3. Custom Hooks
+```jsx
+const useWindowSize = () => {
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return size;
+};
+```
+
+### 4. Performance Optimization
+```jsx
+const MemoizedComponent = memo(({ value }) => {
+  const cachedValue = useMemo(() => 
+    expensiveCalculation(value),
+    [value]
+  );
+
+  const handleClick = useCallback(() => {
+    console.log(value);
+  }, [value]);
+
+  return <div onClick={handleClick}>{cachedValue}</div>;
+});
+```
+
+## Advanced Topics
+
+### 1. Error Boundaries
+```jsx
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+    return this.props.children;
+  }
+}
+```
+
+### 2. Portals
+> A first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component.
+
+Portals provide the ability to break out of the typical component containment model, which is particularly useful for:
+- Modal dialogs
+- Tooltips
+- Floating menus
+- Widgets that need to visually "break out" of their containers
+
+```jsx
+// Basic Portal Implementation
+const Modal = ({ children }) => {
+  return ReactDOM.createPortal(
+    <div className="modal">
+      {children}
+    </div>,
+    document.getElementById('modal-root')
+  );
+};
+
+// Usage Example
+function App() {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div>
+      <button onClick={() => setIsOpen(true)}>Open Modal</button>
+      {isOpen && (
+        <Modal>
+          <h2>Modal Title</h2>
+          <p>This content is rendered outside the DOM hierarchy</p>
+          <button onClick={() => setIsOpen(false)}>Close</button>
+        </Modal>
+      )}
+    </div>
+  );
+}
+```
+
+**Key Characteristics:**
+- Event Bubbling: Events fired from inside a portal will propagate to ancestors in the React tree
+- HTML Context: Content renders at a different DOM location while maintaining React's component hierarchy
+- Accessibility: Maintains proper keyboard navigation and screen reader functionality
+
+**Best Practices:**
+- Use for breaking out of containers with `overflow: hidden`
+- Manage focus and keyboard navigation carefully
+- Clean up portal content when component unmounts
+- Ensure portal container exists before rendering
+
+### 3. Refs
+```jsx
+const FocusInput = () => {
+  const inputRef = useRef();
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
+  return <input ref={inputRef} type="text" />;
+};
+```
+
+## Testing
+```jsx
+describe('Counter', () => {
+  test('increments count', () => {
+    const { getByText } = render(<Counter />);
+    fireEvent.click(getByText('Increment'));
+    expect(getByText('Count: 1')).toBeInTheDocument();
+  });
+});
+```
+````
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
