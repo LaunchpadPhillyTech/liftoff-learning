@@ -17,44 +17,280 @@
       <div class="slides">
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
-            # Basic Folder Structure
-src/
-├── assets/          # Static files like images, fonts
-├── components/      # Reusable UI components
-│   ├── common/      # Shared components like Button, Input
-│   └── layout/      # Layout components like Header, Footer
-├── pages/           # Components representing pages/routes
-├── styles/          # CSS files
-├── utils/           # Helper functions and constants
-├── App.js           # Root component
-└── index.js         # Entry point
+            ## Basic Structure 📁
 
-1. Components: Keep components small and focused
+```text
+src/
+├── assets/      # Static files
+├── components/  # UI components
+├── pages/       # Route components
+├── styles/      # CSS files
+├── utils/       # Helper functions
+├── App.js       # Root component
+└── index.js     # Entry point
+```
+
+Note: Start with a clean, logical structure
+
+---
+
+## Components Organization
+
+--->
+
+### Common Components
+
+```text
 components/
 ├── common/
 │   ├── Button.jsx
-│   └── Input.jsx
+│   ├── Input.jsx
+│   └── Card.jsx
 └── layout/
     ├── Header.jsx
-    └── Footer.jsx
+    ├── Footer.jsx
+    └── Sidebar.jsx
+```
 
-2. src/pages/: Each route gets its own component
+Note: Organize by purpose and reusability
+
+---
+
+### Component Structure
+
+```jsx
+// Button.jsx
+import React from 'react';
+import './Button.css';
+
+const Button = ({ children, onClick, variant = 'primary' }) => {
+  return (
+    <button 
+      className={`btn btn-${variant}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
+
+export default Button;
+```
+
+Note: Keep components focused and simple
+
+---
+
+## Pages Organization 🗂️
+
+```text
 pages/
-├── Home.jsx
-├── About.jsx
-└── Contact.jsx
+├── Home/
+│   ├── index.jsx
+│   └── Home.css
+├── About/
+│   ├── index.jsx
+│   └── About.css
+└── Contact/
+    ├── index.jsx
+    └── Contact.css
+```
 
-3. src/styles/: Organize your CSS files
+Note: Each route gets its own component
+
+---
+
+### Page Component Example
+
+```jsx
+// pages/Home/index.jsx
+import React from 'react';
+import { Header, Footer } from 'components/layout';
+import { Button } from 'components/common';
+import './Home.css';
+
+const Home = () => {
+  return (
+    <div className="home">
+      <Header />
+      <main>
+        <h1>Welcome Home</h1>
+        <Button>Get Started</Button>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Home;
+```
+
+---
+
+## Styles Organization 🎨
+
+```text
 styles/
-├── global.css      # Global styles
-└── variables.css   # CSS variables
+├── global.css     # Global styles
+├── variables.css  # CSS variables
+└── mixins.css     # CSS mixins
+```
 
-# Best Practices:
+---
 
-Keep components small and focused
-Use consistent naming conventions
-Group related files together
-Maintain a flat structure when starting out
+### CSS Structure
+
+```css
+/* variables.css */
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --spacing-unit: 8px;
+  --font-family: 'Arial', sans-serif;
+}
+
+/* global.css */
+@import 'variables.css';
+
+body {
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding: calc(var(--spacing-unit) * 2);
+}
+```
+
+Note: Keep styles modular and maintainable
+
+---
+
+## Assets Organization 📦
+
+```text
+assets/
+├── images/
+│   ├── logo.svg
+│   └── icons/
+├── fonts/
+│   └── custom-font.woff2
+└── data/
+    └── config.json
+```
+
+Note: Organize static files by type
+
+---
+
+## Utils Organization 🛠️
+
+```text
+utils/
+├── api.js          # API helpers
+├── formatting.js   # Format helpers
+├── validation.js   # Validation helpers
+└── constants.js    # App constants
+```
+
+---
+
+### Utils Example
+
+```javascript
+// utils/formatting.js
+export const formatDate = (date) => {
+  return new Date(date).toLocaleDateString();
+};
+
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+};
+
+// utils/validation.js
+export const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+```
+
+---
+
+## Best Practices ✨
+
+1. Component Organization
+   * Keep components small
+   * Single responsibility
+   * Clear naming
+
+2. File Structure
+   * Group related files
+   * Consistent naming
+   * Flat hierarchy initially
+
+---
+
+## Naming Conventions 📝
+
+```text
+# Components (PascalCase)
+Button.jsx
+Header.jsx
+
+# Utilities (camelCase)
+formatDate.js
+apiHelpers.js
+
+# Styles (kebab-case)
+button-styles.css
+header-layout.css
+```
+
+Note: Consistent naming helps navigation
+
+---
+
+## Anti-patterns ❌
+
+1. Deep Nesting
+```text
+components/
+└── UI/
+    └── Common/
+        └── Forms/
+            └── Inputs/
+                └── Button.jsx
+```
+
+2. Inconsistent Structure
+```text
+src/
+├── Components/  # Don't mix case
+├── utils/
+└── Pages/
+```
+
+---
+
+## Scaling Up 📈
+
+```text
+src/
+├── components/
+│   ├── common/
+│   └── layout/
+├── features/    # Feature modules
+│   ├── auth/
+│   └── profile/
+├── pages/
+├── services/    # API services
+└── store/       # State management
+```
+
+Note: Add directories as needed
           </textarea>
         </section>
       </div>

@@ -17,21 +17,23 @@
       <div class="slides">
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
-            # React Concepts Cheat Sheet
+            # React Concepts
+## From Fundamentals to Advanced
+---
 
 ## Foundational Concepts
-> The core building blocks that form the basis of React applications.
 
-### 1. Components
-> Reusable, self-contained pieces of UI that can accept inputs (props) and return React elements.
+--->
+
+### Components 🧱
 
 ```jsx
-// Functional Component - Modern way to write React components using functions
+// Functional Component
 const Greeting = ({ name }) => {
   return <h1>Hello, {name}!</h1>;
 };
 
-// Class Component - Traditional way to write components using ES6 classes
+// Class Component
 class Welcome extends React.Component {
   render() {
     return <h1>Welcome, {this.props.name}</h1>;
@@ -39,8 +41,11 @@ class Welcome extends React.Component {
 }
 ```
 
-### 2. JSX
-> A syntax extension for JavaScript that allows you to write HTML-like code in your JavaScript files.
+Note: Modern React prefers functional components
+
+---
+
+### JSX Syntax ⚡
 
 ```jsx
 const element = (
@@ -52,8 +57,11 @@ const element = (
 );
 ```
 
-### 3. Props
-> Read-only properties passed to components that allow component configuration and data flow.
+Note: JSX lets us write HTML-like code in JavaScript
+
+---
+
+### Props 📦
 
 ```jsx
 const UserCard = ({ name, email, role = 'user' }) => (
@@ -65,12 +73,16 @@ const UserCard = ({ name, email, role = 'user' }) => (
 );
 ```
 
-### 4. State
-> Internal component data that can change over time and triggers re-rendering when modified.
+Note: Props are read-only and flow down the component tree
+
+---
+
+### State 🔄
 
 ```jsx
 const Counter = () => {
   const [count, setCount] = useState(0);
+  
   return (
     <>
       <p>Count: {count}</p>
@@ -82,8 +94,11 @@ const Counter = () => {
 };
 ```
 
-### 5. Side Effects
-> Operations that interact with the outside world, such as data fetching, subscriptions, or DOM mutations.
+Note: State manages dynamic data within components
+
+---
+
+### Side Effects 🔋
 
 ```jsx
 const DataFetcher = () => {
@@ -105,22 +120,25 @@ const DataFetcher = () => {
 };
 ```
 
-## Core Skills
-> Essential patterns and practices for building scalable React applications.
+Note: Handle external interactions and cleanup
 
-### 1. Component Architecture
-> Pattern of splitting components into presentational and container components for better separation of concerns.
+---
+
+## Core Skills
+
+--->
+
+### Component Architecture 🏗️
 
 ```jsx
-// Smart Component (Container) - Handles logic and state
+// Smart Component (Container)
 const UserContainer = () => {
   const [user, setUser] = useState(null);
   // Logic here
-
   return <UserProfile user={user} onUpdate={handleUpdate} />;
 };
 
-// Presentational Component - Handles rendering and styling
+// Presentational Component
 const UserProfile = ({ user, onUpdate }) => (
   <div className="profile">
     <h2>{user.name}</h2>
@@ -129,13 +147,18 @@ const UserProfile = ({ user, onUpdate }) => (
 );
 ```
 
-### 2. State Management
+Note: Separation of concerns between logic and presentation
+
+---
+
+### State Management 📊
+
 ```jsx
-// Context
 const ThemeContext = React.createContext('light');
 
 const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('light');
+  
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
@@ -144,7 +167,12 @@ const ThemeProvider = ({ children }) => {
 };
 ```
 
-### 3. Custom Hooks
+Note: Context provides a way to share values across components
+
+---
+
+### Custom Hooks 🎣
+
 ```jsx
 const useWindowSize = () => {
   const [size, setSize] = useState({
@@ -167,7 +195,12 @@ const useWindowSize = () => {
 };
 ```
 
-### 4. Performance Optimization
+Note: Reusable logic across components
+
+---
+
+### Performance Optimization ⚡
+
 ```jsx
 const MemoizedComponent = memo(({ value }) => {
   const cachedValue = useMemo(() => 
@@ -183,9 +216,16 @@ const MemoizedComponent = memo(({ value }) => {
 });
 ```
 
+Note: Use memo, useMemo, and useCallback for optimization
+
+---
+
 ## Advanced Topics
 
-### 1. Error Boundaries
+--->
+
+### Error Boundaries 🛡️
+
 ```jsx
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
@@ -203,17 +243,13 @@ class ErrorBoundary extends React.Component {
 }
 ```
 
-### 2. Portals
-> A first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component.
+Note: Catch and handle errors in component tree
 
-Portals provide the ability to break out of the typical component containment model, which is particularly useful for:
-- Modal dialogs
-- Tooltips
-- Floating menus
-- Widgets that need to visually "break out" of their containers
+---
+
+### Portals 🚪
 
 ```jsx
-// Basic Portal Implementation
 const Modal = ({ children }) => {
   return ReactDOM.createPortal(
     <div className="modal">
@@ -223,18 +259,20 @@ const Modal = ({ children }) => {
   );
 };
 
-// Usage Example
+// Usage
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  
   return (
     <div>
-      <button onClick={() => setIsOpen(true)}>Open Modal</button>
+      <button onClick={() => setIsOpen(true)}>
+        Open Modal
+      </button>
       {isOpen && (
         <Modal>
           <h2>Modal Title</h2>
-          <p>This content is rendered outside the DOM hierarchy</p>
-          <button onClick={() => setIsOpen(false)}>Close</button>
+          <button onClick={() => setIsOpen(false)}>
+            Close
+          </button>
         </Modal>
       )}
     </div>
@@ -242,18 +280,12 @@ function App() {
 }
 ```
 
-**Key Characteristics:**
-- Event Bubbling: Events fired from inside a portal will propagate to ancestors in the React tree
-- HTML Context: Content renders at a different DOM location while maintaining React's component hierarchy
-- Accessibility: Maintains proper keyboard navigation and screen reader functionality
+Note: Render children outside component hierarchy
 
-**Best Practices:**
-- Use for breaking out of containers with `overflow: hidden`
-- Manage focus and keyboard navigation carefully
-- Clean up portal content when component unmounts
-- Ensure portal container exists before rendering
+---
 
-### 3. Refs
+### Refs 📌
+
 ```jsx
 const FocusInput = () => {
   const inputRef = useRef();
@@ -266,7 +298,12 @@ const FocusInput = () => {
 };
 ```
 
-## Testing
+Note: Direct access to DOM elements
+
+---
+
+## Testing 🧪
+
 ```jsx
 describe('Counter', () => {
   test('increments count', () => {
@@ -276,8 +313,21 @@ describe('Counter', () => {
   });
 });
 ```
-````
 
+Note: Use React Testing Library for component testing
+
+---
+
+## Best Practices 👍
+
+1. Use functional components
+2. Keep components small and focused
+3. Lift state up when needed
+4. Handle errors gracefully
+5. Test components thoroughly
+6. Optimize performance wisely
+
+Note: Following these practices improves code quality
           </textarea>
         </section>
       </div>

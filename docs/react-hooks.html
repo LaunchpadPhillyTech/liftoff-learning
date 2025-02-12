@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            ## Module 1: Component Fundamentals
+
+--->
+
+### What is a React Component? 🤔
+
+* JavaScript function or class that accepts props
+* Returns React elements
+* Encapsulates reusable UI pieces
+* Has its own logic and styling
+
+Note: Think of components as the building blocks of your application
+
+---
+
+### The LEGO Analogy 🧱
+
+* Components are like LEGO blocks
+* Each block can be:
+  * Reused multiple times
+  * Connected with other blocks
+  * Customized with properties
+  * Part of a larger structure
+
+---
+
+### Best Practices 👍
+
+* Keep components focused and small
+* Use meaningful component names
+* Follow single responsibility principle
+* Maintain proper file structure
+
+Note: These practices help maintain clean and maintainable code
+
+---
+
+### Example: Button Component
+
+```jsx
+const Button = ({ 
+  label, 
+  onClick, 
+  disabled = false, 
+  variant = 'primary' 
+}) => {
+  return (
+    <button 
+      className={`btn btn-${variant}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {label}
+    </button>
+  );
+};
+```
+
+---
+
+### Example: Card Component
+
+```jsx
+const Card = ({ title, description, image, actions }) => {
+  return (
+    <div className="card">
+      {image && 
+        <img src={image} alt={title} className="card-image" />
+      }
+      <div className="card-content">
+        <h3>{title}</h3>
+        <p>{description}</p>
+      </div>
+      {actions && 
+        <div className="card-actions">{actions}</div>
+      }
+    </div>
+  );
+};
+```
+
+---
+
+## Module 2: State Management
+
+--->
+
+### What is State? 🔄
+
+* JavaScript object containing component data
+* Can change over time
+* Influences component rendering
+* Triggers re-renders when updated
+
+Note: State is like a component's memory
+
+---
+
+### State Best Practices 🎯
+
+* Keep state as local as possible
+* Use immutable state updates
+* Avoid redundant state
+* Split complex state logic
+
+---
+
+### useState Hook Example
+
+```jsx
+const Counter = () => {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+      <button onClick={() => setCount(count - 1)}>
+        Decrement
+      </button>
+    </div>
+  );
+};
+```
+
+---
+
+### Complex State Management
+
+```jsx
+const TodoList = () => {
+  const [todos, setTodos] = useState([]);
+  
+  const addTodo = (text) => {
+    setTodos(prevTodos => [
+      ...prevTodos, 
+      { 
+        id: Date.now(), 
+        text, 
+        completed: false 
+      }
+    ]);
+  };
+  
+  const toggleTodo = (id) => {
+    setTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo.id === id 
+          ? { ...todo, completed: !todo.completed } 
+          : todo
+      )
+    );
+  };
+}
+```
+
+---
+
+### Form State Example
+
+```jsx
+const LoginForm = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    rememberMe: false
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+}
+```
+
+---
+
+## Hands-on Exercises 💻
+
+1. Create a `UserCard` component
+2. Build a shopping cart
+3. Implement form validation
+
+Note: These exercises will help reinforce the concepts we've covered
+
+---
+
+## Common Pitfalls to Avoid ⚠️
+
+* Overly complex components
+* Inconsistent naming
+* Poor organization
+* Improper props handling
+* Redundant state
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

@@ -17,181 +17,267 @@
       <div class="slides">
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
-            # React Routing Options
+            ## Router Types
 
-## 1. BrowserRouter
+--->
 
--   Uses HTML5 history API for clean URLs (`/about` instead of `/index.html#/about`).
--   Best for single-page applications (SPAs) that need client-side routing.
+### BrowserRouter 🌐
 
 ```jsx
 import { BrowserRouter, Route, Link } from 'react-router-dom';
 
 function App() {
-    return (
-        <BrowserRouter>
-            <nav>
-                <Link to="/">Home</Link>
-                <Link to="/about">About</Link>
-            </nav>
-
-            <Route path="/" exact>
-                <Home />
-            </Route>
-            <Route path="/about">
-                <About />
-            </Route>
-        </BrowserRouter>
-    );
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
+      <Route path="/" exact>
+        <Home />
+      </Route>
+      <Route path="/about">
+        <About />
+      </Route>
+    </BrowserRouter>
+  );
 }
 ```
 
-## 2. HashRouter
+Note: Uses HTML5 history API for clean URLs
 
--   Uses the hash portion of the URL (`/#/about`).
--   Useful for older browsers or when you don't have control over the server configuration.
+---
+
+### HashRouter #️⃣
 
 ```jsx
 import { HashRouter, Route, Link } from 'react-router-dom';
 
 function App() {
-    return (
-        <HashRouter>
-            <nav>
-                <Link to="/">Home</Link>
-                <Link to="/about">About</Link>
-            </nav>
-
-            <Route path="/" exact>
-                <Home />
-            </Route>
-            <Route path="/about">
-                <About />
-            </Route>
-        </HashRouter>
-    );
+  return (
+    <HashRouter>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
+      <Route path="/" exact>
+        <Home />
+      </Route>
+      <Route path="/about">
+        <About />
+      </Route>
+    </HashRouter>
+  );
 }
 ```
 
-## 3. Route
+Note: Uses URL hash for compatibility with older browsers
 
--   Renders a UI component based on the URL path.
--   Can use `exact` prop to match the path exactly.
+---
+
+## Core Components
+
+--->
+
+### Route Component 🛣️
 
 ```jsx
 import { Route } from 'react-router-dom';
 
 function App() {
-    return (
-        <Route path="/users/:id" component={User} />
-    );
+  return (
+    <Route path="/users/:id" component={User} />
+  );
 }
 ```
 
-## 4. Link
+Note: Renders UI based on URL path
 
--   Creates a link to another route.
--   Replaces `<a href="...">` for internal links in a React app.
+---
+
+### Link Component 🔗
 
 ```jsx
 import { Link } from 'react-router-dom';
 
 function Nav() {
-    return (
-        <Link to="/about">About</Link>
-    );
+  return (
+    <nav>
+      <Link to="/">Home</Link>
+      <Link to="/about">About</Link>
+      <Link to="/contact">Contact</Link>
+    </nav>
+  );
 }
 ```
 
-## 5. Switch
+Note: Replaces anchor tags for internal navigation
 
--   Renders the first route that matches the URL.
--   Useful for handling 404 errors.
+---
+
+### Switch Component 🔄
 
 ```jsx
 import { Switch, Route } from 'react-router-dom';
 
 function App() {
-    return (
-        <Switch>
-            <Route path="/" exact>
-                <Home />
-            </Route>
-            <Route path="/about">
-                <About />
-            </Route>
-            <Route>
-                <NotFound />
-            </Route>
-        </Switch>
-    );
+  return (
+    <Switch>
+      <Route path="/" exact>
+        <Home />
+      </Route>
+      <Route path="/about">
+        <About />
+      </Route>
+      <Route>
+        <NotFound />
+      </Route>
+    </Switch>
+  );
 }
 ```
 
-## 6. useHistory
+Note: Renders first matching route, great for 404 handling
 
--   Provides access to the history instance.
--   Useful for programmatically navigating to different routes.
+---
+
+## React Router Hooks
+
+--->
+
+### useHistory 📜
 
 ```jsx
 import { useHistory } from 'react-router-dom';
 
 function Home() {
-    const history = useHistory();
-
-    const handleClick = () => {
-        history.push('/about');
-    };
-
-    return (
-        <button onClick={handleClick}>Go to About</button>
-    );
+  const history = useHistory();
+  
+  const handleClick = () => {
+    history.push('/about');
+  };
+  
+  return (
+    <button onClick={handleClick}>
+      Go to About
+    </button>
+  );
 }
 ```
 
-## 7. useParams
+Note: For programmatic navigation
 
--   A hook that returns an object of key/value pairs of the dynamic params from the current URL that were matched by the `<Route path>`
--   Useful for accessing parameters in dynamic routes.
+---
+
+### useParams 📝
 
 ```jsx
 import { useParams } from 'react-router-dom';
 
 function User() {
-    const { id } = useParams();
-
-    return (
-        <h1>User ID: {id}</h1>
-    );
+  const { id } = useParams();
+  
+  return (
+    <div>
+      <h1>User Profile</h1>
+      <p>User ID: {id}</p>
+    </div>
+  );
 }
 ```
 
-## 8. useLocation
+Note: Access URL parameters
 
--   A hook that returns the location object.
--   Represents the current URL in web browser.
+---
+
+### useLocation 📍
 
 ```jsx
 import { useLocation } from 'react-router-dom';
 
 function App() {
-    const location = useLocation();
-
-    return (
-        <h1>Current URL: {location.pathname}</h1>
-    );
+  const location = useLocation();
+  
+  return (
+    <div>
+      <h1>Current Path</h1>
+      <p>{location.pathname}</p>
+    </div>
+  );
 }
 ```
 
-## Best Practices
+Note: Access current URL information
 
--   Use `<BrowserRouter>` for most SPAs.
--   Use `<Link>` for internal navigation.
--   Use `<Switch>` to ensure only one route matches.
--   Use `useHistory` for programmatic navigation.
--   Use `useParams` to access route parameters.
--   Use `useLocation` to access current URL.
+---
 
+## Best Practices 👍
+
+1. Use BrowserRouter for modern SPAs
+2. Use Link for internal navigation
+3. Wrap routes in Switch
+4. Handle 404 cases
+5. Use hooks for dynamic routing
+
+Note: Following these practices improves app reliability
+
+---
+
+## Common Patterns
+
+--->
+
+### Protected Routes 🔒
+
+```jsx
+function PrivateRoute({ children, ...rest }) {
+  const auth = useAuth();
+  
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        auth.user ? (
+          children
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/login",
+              state: { from: location }
+            }}
+          />
+        )
+      }
+    />
+  );
+}
+```
+
+---
+
+### Nested Routes 📁
+
+```jsx
+function Dashboard() {
+  return (
+    <div>
+      <nav>
+        <Link to="/dashboard/main">Main</Link>
+        <Link to="/dashboard/settings">Settings</Link>
+      </nav>
+      
+      <Switch>
+        <Route path="/dashboard/main">
+          <DashboardMain />
+        </Route>
+        <Route path="/dashboard/settings">
+          <Settings />
+        </Route>
+      </Switch>
+    </div>
+  );
+}
+```
           </textarea>
         </section>
       </div>

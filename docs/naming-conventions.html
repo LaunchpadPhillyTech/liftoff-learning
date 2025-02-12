@@ -17,88 +17,277 @@
       <div class="slides">
         <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
           <textarea data-template>
-            # Component Folders
-```js
+            # React Project Structure
+## A Complete Guide
+---
+
+## Base Structure 📁
+
+```text
 src/
-  components/
-    Button/
-    NavBar/
-    UserProfile/
+├── components/
+│   ├── Button/
+│   ├── NavBar/
+│   └── UserProfile/
+├── assets/
+├── hooks/
+├── utils/
+├── services/
+└── contexts/
 ```
 
-## General Purpose Folders
-Use camelCase for utility folders and non-component folders
+Note: Start with clear separation of concerns
 
+---
+
+## Component Folders
+
+--->
+
+### Structure Pattern
+
+```text
 src/
-  assets/
-  hooks/
-  utils/
-  services/
-  contexts/
-
-## Component File Structure
-For component folders, a common pattern is:
-src/
-  components/
-    Button/
-      index.js        // main component
-      Button.test.js  // tests
-      Button.css      // styles
-      Button.types.ts // types (if using TypeScript)
-
-## Feature/Page-based Folders
-Use kebab-case for feature or page-based folders
-src/
-  pages/
-    home-page/
-    user-profile/
-    product-listing/
-
-# Best Practices
-Keep folder names descriptive but concise
-Use consistent naming patterns throughout the project
-Group related files together
-Create an ```index.js``` file in component folders for cleaner imports
-Use plural forms for collection folders:
-
-```js 
-src/
-  components/
-  services/
-  utils/
-  hooks/
+└── components/
+    └── Button/
+        ├── index.js        # Main component
+        ├── Button.test.js  # Tests
+        ├── Button.css      # Styles
+        └── Button.types.ts # TypeScript types
 ```
 
-### Example of Complete Structure
-```js
+Note: Keep related files together
+
+---
+
+### Naming Conventions 📝
+
+* Components: PascalCase
+  * `Button/`
+  * `NavBar/`
+  * `UserProfile/`
+
+* Utility folders: camelCase
+  * `hooks/`
+  * `utils/`
+  * `services/`
+
+Note: Consistent naming helps identification
+
+---
+
+## Feature-based Organization
+
+--->
+
+### Pages Structure
+
+```text
 src/
-  components/            # Reusable components
-    Button/
-    NavBar/
-  features/             # Feature-based modules
-    auth/
-    user-profile/
-  pages/                # Route components
-    home-page/
-    about-page/
-  hooks/               # Custom hooks
-    useAuth.js
-    useForm.js
-  services/            # API and external services
-    api/
-    analytics/
-  utils/              # Helper functions
-    formatters.js
-    validators.js
+└── pages/
+    ├── home-page/
+    ├── user-profile/
+    └── product-listing/
 ```
 
-This structure promotes:
+Note: Use kebab-case for feature/page folders
 
-✅ Code organization
-✅ Scalability
-✅ Maintainability
-✅ Reusability
-✅ Clear separation of concerns
+---
+
+### Features Structure
+
+```text
+src/
+└── features/
+    ├── auth/
+    │   ├── components/
+    │   ├── hooks/
+    │   └── services/
+    └── user-profile/
+        ├── components/
+        ├── hooks/
+        └── services/
+```
+
+Note: Group related functionality together
+
+---
+
+## Complete Structure Example
+
+```text
+src/
+├── components/          # Reusable components
+│   ├── Button/
+│   └── NavBar/
+├── features/           # Feature-based modules
+│   ├── auth/
+│   └── user-profile/
+├── pages/             # Route components
+│   ├── home-page/
+│   └── about-page/
+├── hooks/             # Custom hooks
+│   ├── useAuth.js
+│   └── useForm.js
+├── services/          # API and external services
+│   ├── api/
+│   └── analytics/
+└── utils/             # Helper functions
+    ├── formatters.js
+    └── validators.js
+```
+
+Note: Scalable and maintainable structure
+
+---
+
+## Best Practices ✨
+
+1. Descriptive Naming
+   * Clear and concise
+   * Purpose-indicating
+   * Consistent patterns
+
+2. File Organization
+   * Group related files
+   * Create index.js files
+   * Use plural for collections
+
+---
+
+## Component Organization
+
+--->
+
+### Flat vs Nested
+
+```text
+# Flat (Good for small apps)
+components/
+├── Button.jsx
+├── NavBar.jsx
+└── UserProfile.jsx
+
+# Nested (Better for larger apps)
+components/
+├── Button/
+│   ├── index.jsx
+│   └── styles.css
+├── NavBar/
+└── UserProfile/
+```
+
+Note: Choose based on project size
+
+---
+
+## Feature Organization
+
+--->
+
+### Self-contained Features
+
+```text
+features/
+└── auth/
+    ├── components/
+    │   ├── LoginForm/
+    │   └── SignupForm/
+    ├── hooks/
+    │   └── useAuth.js
+    ├── services/
+    │   └── authApi.js
+    └── index.js
+```
+
+Note: Keep feature code isolated
+
+---
+
+## Import Patterns 🔍
+
+```javascript
+// Bad
+import Button from '../../../components/Button/Button';
+
+// Good (with index.js)
+import { Button } from 'components';
+
+// Feature imports
+import { LoginForm } from 'features/auth';
+```
+
+Note: Use index files for cleaner imports
+
+---
+
+## Directory Benefits
+
+1. Organization ✅
+   * Clear structure
+   * Easy navigation
+   * Logical grouping
+
+2. Scalability ✅
+   * Easy to add features
+   * Maintainable growth
+   * Clear patterns
+
+---
+
+## Anti-patterns ❌
+
+1. Inconsistent Naming
+```text
+src/
+├── Components/  # Don't mix case styles
+├── utils/
+└── Services/
+```
+
+2. Deep Nesting
+```text
+components/
+└── Header/
+    └── Nav/
+        └── Links/
+            └── Button/
+```
+
+Note: Avoid these common mistakes
+
+---
+
+## Real World Example
+
+```text
+src/
+├── components/
+│   ├── common/
+│   │   ├── Button/
+│   │   └── Input/
+│   └── layout/
+│       ├── Header/
+│       └── Footer/
+├── features/
+│   ├── auth/
+│   └── profile/
+├── pages/
+│   ├── home-page/
+│   └── dashboard/
+└── services/
+    └── api/
+```
+
+Note: Practical example of scalable structure
+
+---
+
+## Questions? 🤔
+
+Thank you for attending!
+
+Note: Feel free to ask about specific organization needs
           </textarea>
         </section>
       </div>
