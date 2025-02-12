@@ -10,7 +10,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "reveal-md --theme black --static ./src -w",
-    "build": "reveal-md --static ./docs"
+    "build": "reveal-md --static ./docs", 
+    "dev": "nodemon --exec 'npm start'"
   },
   "keywords": [],
   "author": "",
