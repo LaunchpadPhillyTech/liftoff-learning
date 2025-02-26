@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            # Project-Based Learning: Mastering Context API with React & Vite
+
+---
+
+## Slide 1: Welcome to the Journey
+### Building a Theme Switcher App
+- **Objective**: Learn the React Context API by creating a dynamic theme switcher application.
+- **Why Context API?**: Manage global state (like themes) without prop drilling.
+- **Tools**: React.js, Vite, Context API, CSS.
+- **Transferable Skills**: State management, modular design, user-focused problem-solving.
+
+---
+
+## Slide 2: What is Context API?
+### The Big Picture
+- A React feature for sharing state across components.
+- Avoids passing props through every level of the component tree.
+- Perfect for global data: themes, user settings, authentication.
+- **Key Concepts**:
+  - `createContext`: Creates a context object.
+  - `Provider`: Supplies the context value.
+  - `Consumer` or `useContext`: Accesses the context value.
+
+---
+
+## Slide 3: Project Overview
+### The Theme Switcher App
+- **Goal**: Build an app where users can toggle between light and dark themes.
+- **Features**:
+  - A toggle button to switch themes.
+  - Components reflecting the active theme (e.g., background, text color).
+  - Persistent theme choice using localStorage (optional stretch goal).
+- **Learning Outcomes**:
+  - Use Context API to manage theme state globally.
+  - Write clean, reusable code.
+  - Handle user interactions effectively.
+
+---
+
+## Slide 4: Setup with Vite
+### Get Started Fast
+- **Step 1**: Initialize the project:
+  ```bash
+  npm create vite@latest theme-switcher -- --template react
+  cd theme-switcher
+  npm install
+  npm run dev
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>

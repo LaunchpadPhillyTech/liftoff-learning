@@ -202,17 +202,27 @@ Note: Reusable logic across components
 ### Performance Optimization ⚡
 
 ```jsx
+// Import necessary React modules
+import React, { memo, useMemo, useCallback, useState } from 'react';
+import ReactDOM from 'react-dom';
+
+// Memoized Component: Improves performance by preventing unnecessary re-renders
 const MemoizedComponent = memo(({ value }) => {
+  
+  // `useMemo` caches the result of `expensiveCalculation(value)`
+  // It will only recompute if `value` changes
   const cachedValue = useMemo(() => 
-    expensiveCalculation(value),
-    [value]
+    expensiveCalculation(value), // Function that performs a costly computation
+    [value] // Dependency array: recompute only when `value` changes
   );
 
+  // `useCallback` memoizes the function `handleClick`, 
+  // preventing it from being recreated on each render
   const handleClick = useCallback(() => {
-    console.log(value);
-  }, [value]);
+    console.log(value); // Logs the current `value` when clicked
+  }, [value]); // Dependency array ensures re-creation only when `value` changes
 
-  return <div onClick={handleClick}>{cachedValue}</div>;
+  return <div onClick={handleClick}>{cachedValue}</div>; // Renders computed value and handles click event
 });
 ```
 
@@ -227,18 +237,22 @@ Note: Use memo, useMemo, and useCallback for optimization
 ### Error Boundaries 🛡️
 
 ```jsx
+// 🔹 Error Boundaries 🛡️
+// Used to catch JavaScript errors in child components and display a fallback UI
 class ErrorBoundary extends React.Component {
-  state = { hasError: false };
+  state = { hasError: false }; // State to track if an error has occurred
 
+  // Lifecycle method: Updates state when an error is encountered
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { hasError: true }; // Sets error state to true when an error is caught
   }
 
+  // Renders fallback UI if an error occurs; otherwise, renders child components
   render() {
     if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
+      return <h1>Something went wrong.</h1>; // Displays error message
     }
-    return this.props.children;
+    return this.props.children; // If no error, render children normally
   }
 }
 ```
@@ -250,33 +264,38 @@ Note: Catch and handle errors in component tree
 ### Portals 🚪
 
 ```jsx
+// 🔹 Portals 🚪
+// Used to render components outside the normal DOM hierarchy, like modals
 const Modal = ({ children }) => {
   return ReactDOM.createPortal(
     <div className="modal">
-      {children}
+      {children} {/* Renders the content passed as children */}
     </div>,
-    document.getElementById('modal-root')
+    document.getElementById('modal-root') // Mounts modal into a specific DOM element
   );
 };
 
-// Usage
+// Usage Example for Modal
 function App() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // State to manage modal visibility
+
   return (
     <div>
+      {/* Button to open the modal */}
       <button onClick={() => setIsOpen(true)}>
         Open Modal
       </button>
+
+      {/* Render modal only if `isOpen` is true */}
       {isOpen && (
         <Modal>
           <h2>Modal Title</h2>
-          <button onClick={() => setIsOpen(false)}>
-            Close
-          </button>
+          <button onClick={() => setIsOpen(false)}>Close</button> {/* Closes modal */}
         </Modal>
       )}
     </div>
   );
+}
 }
 ```
 
@@ -288,6 +307,7 @@ Note: Render children outside component hierarchy
 
 ```jsx
 const FocusInput = () => {
+
   const inputRef = useRef();
 
   useEffect(() => {
@@ -306,9 +326,12 @@ Note: Direct access to DOM elements
 
 ```jsx
 describe('Counter', () => {
+
   test('increments count', () => {
+
     const { getByText } = render(<Counter />);
     fireEvent.click(getByText('Increment'));
+
     expect(getByText('Count: 1')).toBeInTheDocument();
   });
 });
